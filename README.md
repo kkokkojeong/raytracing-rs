@@ -4,3 +4,7 @@ An implementation of a very simple raytracing based on [HONG LAB`s Graphics Cour
 I used this project to learn Rust.
 
 
+### References
+- https://doc.rust-lang.org/book
+- https://rinthel.github.io/rust-lang-book-ko
+- https://github.com/dps/rust-raytracer
