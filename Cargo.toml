@@ -6,4 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 # https://crates.io/
 [dependencies]
-winit = "0.29.9"
+winit = "0.29"
+wgpu = "0.18"
+cgmath = "0.18"

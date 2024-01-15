@@ -1,3 +1,5 @@
+mod ray;
+mod raytracer;
 
 use winit::{
     event::{Event, WindowEvent},
@@ -23,8 +25,7 @@ fn main() {
             } => {
                 println!("The close button was pressed; stopping");
                 elwt.exit();
-            }
-            ,
+            },
             _ => ()
         }
     });
