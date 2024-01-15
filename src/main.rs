@@ -1,6 +1,7 @@
-mod ray;
-mod raytracer;
+// use crate::ray
+// use crate::Raytracer;
 
+use raytracing_rs::raytracer::Raytracer;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -16,6 +17,11 @@ fn main() {
         .with_title("Raytracing written Rust")
         .with_inner_size(winit::dpi::LogicalSize::new(width, height));
     let window = window_builder.build(&event_loop).unwrap();
+
+    // ray
+    // raytracer
+    let ray = Raytracer::new(width, height);
+
 
     event_loop.run(move |event, elwt| {
         match event {
