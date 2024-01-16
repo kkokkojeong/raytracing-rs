@@ -2,6 +2,7 @@
 // use crate::Raytracer;
 
 use raytracing_rs::raytracer::Raytracer;
+
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
