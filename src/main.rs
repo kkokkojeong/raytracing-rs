@@ -1,6 +1,3 @@
-// use crate::ray
-// use crate::Raytracer;
-
 use raytracing_rs::raytracer::Raytracer;
 
 use winit::{
@@ -22,6 +19,7 @@ fn main() {
     // ray
     // raytracer
     let ray = Raytracer::new(width, height);
+    ray.render();
 
 
     event_loop.run(move |event, elwt| {

@@ -23,6 +23,7 @@ impl Raytracer {
         // located back of screen
         let light = Light{ pos: cgmath::Vector3::new(0.0, 0.0, -1.0) };
 
+
         Raytracer { width, height, sphere, light }
     }
 
@@ -31,4 +32,38 @@ impl Raytracer {
 
         return hit;
     }
+
+    pub fn render(&self) {
+        println!("start of render!");
+
+        for j in 0..self.height {
+            for i in 0..self.width {
+                let pixelPosWorld = self.transform_screen_to_world(cgmath::vec2(i as f32, j as f32));
+            }
+        }
+
+        println!("end of render!");
+    }
+
+    fn transform_screen_to_world(&self, pos: cgmath::Vector2<f32>) -> cgmath::Vector3<f32> {
+        let w = self.width as f32;
+        let h = self.height as f32;
+        let x_scale = 2.0 / w;
+        let y_scale = 2.0 / h;
+        let aspect = w / h;
+
+        println!("apsect {}", aspect);
+
+        cgmath::vec3(
+            (pos.x * x_scale - 1.0) * aspect,
+            -pos.y * y_scale + 1.0,
+            0.0
+        )
+    }
 }
+
+// #[test]
+// fn test_raytracer_render() {
+//     let raytracer = Raytracer::new(100, 100);
+//     raytracer.render();
+// }
