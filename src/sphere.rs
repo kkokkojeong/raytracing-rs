@@ -1,8 +1,10 @@
+use std::ops::Sub;
 use crate::ray::Ray;
+use crate::hit::Hit;
 
 pub struct Sphere {
     // geometry properties
-    pub center: cgmath::Point3<f32>,
+    pub center: cgmath::Vector3<f32>,
     pub radius: f32,
 
     // light properties
@@ -14,7 +16,7 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: cgmath::Point3<f32>, radius: f32) -> Sphere {
+    pub fn new(center: cgmath::Vector3<f32>, radius: f32) -> Sphere {
         Sphere {
             center,
             radius,
@@ -26,7 +28,16 @@ impl Sphere {
         }
     }
 
-    pub fn intersect_ray_collision(ray: Ray) -> bool {
-        true
+    pub fn intersect_ray_collision(&self, ray: Ray) -> bool {
+
+        // Wikipedia Line–sphere intersection
+        // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+        let hit  = Hit {d: -1.0, point: cgmath::vec3(0.0, 0.0, 0.0), normal: cgmath::vec3(0.0, 0.0, 0.0)};
+
+        let to_ray_dir = ray.start.sub(self.center);
+        let b = 2.0 * cgmath::dot(ray.dir, to_ray_dir);
+        let c = cgmath::dot(to_ray_dir, to_ray_dir) - self.radius * self.radius;
+
+        return true;
     }
 }
