@@ -1,4 +1,5 @@
-use std::ops::Sub;
+use std::ops::{Add, Sub};
+use cgmath::InnerSpace;
 use crate::ray::Ray;
 use crate::hit::Hit;
 
@@ -28,16 +29,28 @@ impl Sphere {
         }
     }
 
-    pub fn intersect_ray_collision(&self, ray: Ray) -> bool {
+    pub fn intersect_ray_collision(&self, ray: Ray) -> Hit {
 
         // Wikipedia Line–sphere intersection
         // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-        let hit  = Hit {d: -1.0, point: cgmath::vec3(0.0, 0.0, 0.0), normal: cgmath::vec3(0.0, 0.0, 0.0)};
+        let mut hit = Hit {d: -1.0, point: cgmath::vec3(0.0, 0.0, 0.0), normal: cgmath::vec3(0.0, 0.0, 0.0)};
 
         let to_ray_dir = ray.start.sub(self.center);
+
         let b = 2.0 * cgmath::dot(ray.dir, to_ray_dir);
         let c = cgmath::dot(to_ray_dir, to_ray_dir) - self.radius * self.radius;
 
-        return true;
+        let det = b * b - 4.0 * c;
+
+        if (det >= 0.0) {
+            let d1 = (-b - det.sqrt()) / 2.0;
+            let d2 = (-b + det.sqrt()) / 2.0;
+
+            hit.d = std::cmp::min(d1, d2);
+            hit.point = ray.start.add(ray.dir) * hit.d;
+            hit.normal = hit.point.sub(self.center).normalize();
+        }
+
+        return hit;
     }
 }
