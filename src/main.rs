@@ -21,6 +21,8 @@ fn main() {
     let ray = Raytracer::new(width, height);
     ray.render();
 
+    // TODO: wgpu
+
 
     event_loop.run(move |event, elwt| {
         match event {
