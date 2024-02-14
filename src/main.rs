@@ -7,6 +7,8 @@ use winit::{
 };
 
 fn main() {
+    env_logger::init();
+
     let width = 1280;
     let height = 720;
 

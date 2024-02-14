@@ -46,7 +46,8 @@ impl Sphere {
             let d1 = (-b - det.sqrt()) / 2.0;
             let d2 = (-b + det.sqrt()) / 2.0;
 
-            hit.d = std::cmp::min(d1, d2);
+            // TODO: compile error!
+            // hit.d = std::cmp::min(d1, d2);
             hit.point = ray.start.add(ray.dir) * hit.d;
             hit.normal = hit.point.sub(self.center).normalize();
         }
