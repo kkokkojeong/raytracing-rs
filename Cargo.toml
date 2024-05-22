@@ -13,6 +13,7 @@ log = "0.4"
 env_logger = "0.11"
 cfg-if = "1"
 wasm-bindgen = "0.2.91"
+pollster = "0.3.0"
 
 # Added support for the web
 # https://sotrh.github.io/learn-wgpu/beginner/tutorial1-window/#added-support-for-the-web
