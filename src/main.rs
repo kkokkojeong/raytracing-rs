@@ -22,8 +22,8 @@ async fn run() {
 
     // ray
     // raytracer
-    // let ray = Raytracer::new(width, height);
-    // ray.render();
+    let ray = Raytracer::new(width, height);
+    ray.render();
 
     // initialize wgpu
     let mut state = State::new(&window).await;
