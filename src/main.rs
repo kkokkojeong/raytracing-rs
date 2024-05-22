@@ -1,4 +1,3 @@
-use std::os::macos::raw::stat;
 use raytracing_rs::raytracer::Raytracer;
 use raytracing_rs::state::State;
 
@@ -11,8 +10,8 @@ use winit::{
 use winit::event::ElementState;
 
 async fn run() {
-    let width = 1280;
-    let height = 720;
+    let width = 800;
+    let height = 600;
 
     let event_loop = EventLoop::new().unwrap();
     let window_builder = WindowBuilder::new()

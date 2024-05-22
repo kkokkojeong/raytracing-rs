@@ -43,8 +43,8 @@ impl Sphere {
         let det = b * b - 4.0 * c;
 
         if (det >= 0.0) {
-            let d1 = (-b - det.sqrt()) / 2.0;
-            let d2 = (-b + det.sqrt()) / 2.0;
+            let _ = (-b - det.sqrt()) / 2.0;
+            let _ = (-b + det.sqrt()) / 2.0;
 
             // TODO: compile error!
             // hit.d = std::cmp::min(d1, d2);

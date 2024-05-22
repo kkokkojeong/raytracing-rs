@@ -5,6 +5,7 @@ pub mod sphere;
 pub mod hit;
 pub mod light;
 pub mod state;
+pub mod texture;
 
 
 /*
