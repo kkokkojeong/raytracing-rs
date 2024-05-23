@@ -1,3 +1,5 @@
+use std::time::Instant;
+use image::{EncodableLayout, ImageBuffer};
 // https://doc.rust-kr.org/ch17-00-oop.html
 use crate::ray::Ray;
 use crate::sphere::Sphere;
@@ -23,21 +25,24 @@ impl Raytracer {
         // located back of screen
         let light = Light{ pos: cgmath::Vector3::new(0.0, 0.0, -1.0) };
 
-
         Raytracer { width, height, sphere, light }
     }
 
     pub fn tracy_ray(&self, ray: Ray) -> cgmath::Vector3<f32> {
 
-        self.sphere.intersect_ray_collision(ray);
+        let hit = self.sphere.intersect_ray_collision(ray);
 
-
-
-        return cgmath::vec3(0.0, 0.0, 0.0);
+        if hit.d < 0.0 {
+            return cgmath::vec3(0.0, 0.0, 0.0);
+        } else {
+            return cgmath::vec3(1.0, 0.0, 0.0);
+        }
     }
 
-    pub fn render(&self) {
+    pub fn render(&self, mut imgbuf: ImageBuffer<image::Rgb<u8>, Vec<u8>>) {
         println!("start of render!");
+
+        let start = Instant::now();
 
         for j in 0..self.height {
             for i in 0..self.width {
@@ -47,12 +52,23 @@ impl Raytracer {
                 // 스크린에 수직인 z 방향, 유닛벡터
                 let ray_dir = cgmath::vec3(0.0, 0.0, 1.0);
 
-                let pixel_ray = Ray {dir: ray_dir, start: pixel_pos_world};
-                self.tracy_ray(pixel_ray);
+                let pixel_ray = Ray { dir: ray_dir, start: pixel_pos_world };
+                let color = self.tracy_ray(pixel_ray);
+
+                let r = (color.x * 255.0).clamp(0.0, 255.0) as u8;
+                let g = (color.y * 255.0).clamp(0.0, 255.0) as u8;
+                let b = (color.z * 255.0).clamp(0.0, 255.0) as u8;
+
+                imgbuf.put_pixel(i as u32, j as u32, image::Rgb([r, g, b]));
             }
         }
 
-        println!("end of render!");
+        let elapsed = start.elapsed();
+
+        println!("end of render! {:?} ms", elapsed.as_millis());
+
+        // For debugging
+        image::save_buffer("tmp_ray_result.png", imgbuf.as_bytes(), self.width as u32, self.height as u32, image::ExtendedColorType::Rgb8).unwrap()
     }
 
     fn transform_screen_to_world(&self, pos: cgmath::Vector2<f32>) -> cgmath::Vector3<f32> {

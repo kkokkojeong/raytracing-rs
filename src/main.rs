@@ -19,10 +19,15 @@ async fn run() {
         .with_inner_size(winit::dpi::LogicalSize::new(width, height));
     let window = window_builder.build(&event_loop).unwrap();
 
-    // ray
-    // raytracer
+
+    // image buffer
+    let mut img_buff = image::RgbImage::new(width as u32, height as u32);
+
+    /**
+     * Start ray tracing
+     */
     let ray = Raytracer::new(width, height);
-    ray.render();
+    ray.render(img_buff);
 
     // initialize wgpu
     let mut state = State::new(&window).await;
@@ -73,7 +78,7 @@ async fn run() {
                                     elwt.exit();
                                 }
 
-                                // This happens when the a frame takes too long to present
+                                // This happens when the frame takes too long to present
                                 Err(wgpu::SurfaceError::Timeout) => {
                                     log::warn!("Surface timeout")
                                 }

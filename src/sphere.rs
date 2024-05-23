@@ -33,7 +33,11 @@ impl Sphere {
 
         // Wikipedia Line–sphere intersection
         // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-        let mut hit = Hit {d: -1.0, point: cgmath::vec3(0.0, 0.0, 0.0), normal: cgmath::vec3(0.0, 0.0, 0.0)};
+        let mut hit = Hit {
+            d: -1.0,
+            point: cgmath::vec3(0.0, 0.0, 0.0),
+            normal: cgmath::vec3(0.0, 0.0, 0.0)
+        };
 
         let to_ray_dir = ray.start.sub(self.center);
 
@@ -43,11 +47,10 @@ impl Sphere {
         let det = b * b - 4.0 * c;
 
         if (det >= 0.0) {
-            let _ = (-b - det.sqrt()) / 2.0;
-            let _ = (-b + det.sqrt()) / 2.0;
+            let d1 = (-b - det.sqrt()) / 2.0;
+            let d2 = (-b + det.sqrt()) / 2.0;
 
-            // TODO: compile error!
-            // hit.d = std::cmp::min(d1, d2);
+            hit.d = d1.min(d2);
             hit.point = ray.start.add(ray.dir) * hit.d;
             hit.normal = hit.point.sub(self.center).normalize();
         }
