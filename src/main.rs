@@ -1,3 +1,4 @@
+use image::{DynamicImage, EncodableLayout, RgbaImage};
 use raytracing_rs::raytracer::Raytracer;
 use raytracing_rs::state::State;
 
@@ -27,10 +28,10 @@ async fn run() {
      * Start ray tracing
      */
     let ray = Raytracer::new(width, height);
-    ray.render(img_buff);
+    ray.render(&mut img_buff);
 
     // initialize wgpu
-    let mut state = State::new(&window).await;
+    let mut state = State::new(&window, &mut img_buff).await;
 
     // State::new uses async code, so we're going to wait for it to finish
     let mut surface_configured = false;

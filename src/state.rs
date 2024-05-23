@@ -1,5 +1,5 @@
 use std::iter;
-use image::EncodableLayout;
+use image::{EncodableLayout, ImageBuffer, RgbaImage};
 use wgpu::util::DeviceExt;
 
 use winit::event::WindowEvent;
@@ -75,7 +75,7 @@ pub struct State<'a> {
 
 impl<'a> State<'a> {
     // Creating some of the wgpu types requires async code
-    pub async fn new(window: &'a Window) -> State<'a> {
+    pub async fn new(window: &'a Window, mut imgbuf: &mut ImageBuffer<image::Rgb<u8>, Vec<u8>>) -> State<'a> {
         let size = window.inner_size();
 
         // the instance is a handle to our GPU
@@ -141,32 +141,12 @@ impl<'a> State<'a> {
             desired_maximum_frame_latency: 2,
         };
 
-        // image test
-        let mut buffer = image::ImageBuffer::new(800, 600);
+        // let diffuse_bytes = include_bytes!("../tmp_ray_result.png");
+        // let diffuse_texture =
+        //     texture::Texture::from_bytes(&device, &queue, diffuse_bytes, "image").unwrap();
 
-        for (x, y, pixel) in buffer.enumerate_pixels_mut() {
-            *pixel = image::Rgb([1, 0, 0]);
-        }
-
-        // buffer.save("fractal.png").unwrap();
-
-        //
-        // // buffer.get_pixel(0, 0).
-        //
-        let mut img = image::RgbImage::new(32, 32);
-
-        for x in 15..=17 {
-            for y in 8..24 {
-                img.put_pixel(x, y, image::Rgb([255, 0, 0]));
-                img.put_pixel(y, x, image::Rgb([255, 255, 0]));
-            }
-        }
-
-        image::save_buffer("result.png", img.as_bytes(), 32, 32, image::ExtendedColorType::Rgb8).unwrap();
-
-        let diffuse_bytes = include_bytes!("../tmp_ray_result.png");
         let diffuse_texture =
-            texture::Texture::from_bytes(&device, &queue, diffuse_bytes, "image").unwrap();
+            texture::Texture::from_image_buffer(&device, &queue, imgbuf, Some("texture")).unwrap();
 
         let texture_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
