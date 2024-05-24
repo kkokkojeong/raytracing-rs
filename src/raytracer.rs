@@ -21,7 +21,7 @@ impl Raytracer {
         sphere.amb = cgmath::vec3(0.0, 0.0, 0.0);
         sphere.diff = cgmath::vec3(0.0, 0.0, 1.0);
         sphere.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        sphere.alpha = 100000.0;
+        sphere.alpha = 9.0;
         sphere.ks = 0.8;
 
         // located back of screen
@@ -36,7 +36,7 @@ impl Raytracer {
         let hit = self.sphere.intersect_ray_collision(ray);
 
         if hit.d < 0.0 {
-            return cgmath::vec3(0.0, 0.0, 0.0);
+            cgmath::vec3(0.0, 0.0, 0.0)
         } else {
             // Phong reflection model.
 
@@ -48,13 +48,13 @@ impl Raytracer {
 
             // specular
             let r = 2.0 * cgmath::dot(n, l) * n - l;
-            let e = dir.mul(-1.0).normalize();
+            let e = (-1.0 * dir).normalize();
 
             let specular = cgmath::dot(r, e)
                 .max(0.0)
                 .powf(self.sphere.alpha);
 
-            return self.sphere.amb + self.sphere.diff * diff + self.sphere.spec * specular * self.sphere.ks
+            self.sphere.amb + (self.sphere.diff * diff) + (self.sphere.spec * specular * self.sphere.ks)
         }
     }
 

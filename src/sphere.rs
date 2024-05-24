@@ -39,7 +39,7 @@ impl Sphere {
             normal: cgmath::vec3(0.0, 0.0, 0.0)
         };
 
-        let to_ray_dir = ray.start.sub(self.center);
+        let to_ray_dir = ray.start - self.center;
 
         let b = 2.0 * cgmath::dot(ray.dir, to_ray_dir);
         let c = cgmath::dot(to_ray_dir, to_ray_dir) - self.radius * self.radius;
@@ -51,8 +51,8 @@ impl Sphere {
             let d2 = (-b + det.sqrt()) / 2.0;
 
             hit.d = d1.min(d2);
-            hit.point = ray.start.add(ray.dir) * hit.d;
-            hit.normal = hit.point.sub(self.center).normalize();
+            hit.point = ray.start + ray.dir * hit.d;
+            hit.normal = (hit.point - self.center).normalize();
         }
 
         return hit;
