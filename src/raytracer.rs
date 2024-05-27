@@ -31,9 +31,7 @@ impl Raytracer {
     }
 
     pub fn tracy_ray(&self, ray: Ray) -> cgmath::Vector3<f32> {
-
-        let dir = ray.dir.clone();
-        let hit = self.sphere.intersect_ray_collision(ray);
+        let hit = self.sphere.intersect_ray_collision(&ray);
 
         if hit.d < 0.0 {
             cgmath::vec3(0.0, 0.0, 0.0)
@@ -48,7 +46,7 @@ impl Raytracer {
 
             // specular
             let r = 2.0 * cgmath::dot(n, l) * n - l;
-            let e = (-1.0 * dir).normalize();
+            let e = (-1.0 * ray.dir).normalize();
 
             let specular = cgmath::dot(r, e)
                 .max(0.0)

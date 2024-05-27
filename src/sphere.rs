@@ -29,7 +29,7 @@ impl Sphere {
         }
     }
 
-    pub fn intersect_ray_collision(&self, ray: Ray) -> Hit {
+    pub fn intersect_ray_collision(&self, ray: &Ray) -> Hit {
 
         // Wikipedia Line–sphere intersection
         // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
