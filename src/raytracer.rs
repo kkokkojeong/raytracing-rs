@@ -25,7 +25,7 @@ impl Raytracer {
         sphere.ks = 0.8;
 
         // located back of screen
-        let light = Light{ pos: cgmath::Vector3::new(0.0, 0.0, -1.0) };
+        let light = Light { pos: cgmath::Vector3::new(0.0, 0.0, -1.0) };
 
         Raytracer { width, height, sphere, light }
     }
@@ -98,7 +98,7 @@ impl Raytracer {
         cgmath::vec3(
             (pos.x * x_scale - 1.0) * aspect,
             -pos.y * y_scale + 1.0,
-            0.0
+            0.0,
         )
     }
 }
