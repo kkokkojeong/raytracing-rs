@@ -51,9 +51,9 @@ impl Raytracer {
 
         let mut objects: Vec<Sphere> = Vec::new();
 
-        objects.push(sphere1);
-        objects.push(sphere2);
         objects.push(sphere3);
+        objects.push(sphere2);
+        objects.push(sphere1);
 
         // located back of screen
         let light = Light { pos: cgmath::Vector3::new(0.0, 1.0, -1.0) };
@@ -130,13 +130,18 @@ impl Raytracer {
 
         let start = Instant::now();
 
+        let eye_pos = cgmath::Vector3::new(0.0, 0.0, -1.5);
+
         for j in 0..self.height {
             for i in 0..self.width {
                 let pixel_pos_world = self.transform_screen_to_world(cgmath::vec2(i as f32, j as f32));
 
                 // 광선의 방향 벡터
                 // 스크린에 수직인 z 방향, 유닛벡터
-                let ray_dir = cgmath::vec3(0.0, 0.0, 1.0);
+                // let ray_dir = cgmath::vec3(0.0, 0.0, 1.0);
+                let ray_dir = (pixel_pos_world - eye_pos).normalize();
+
+                    // cgmath::vec3(0.0, 0.0, 1.0);
 
                 let pixel_ray = Ray { dir: ray_dir, start: pixel_pos_world };
                 let color = self.tracy_ray(&pixel_ray);
