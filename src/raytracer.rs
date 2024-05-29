@@ -1,7 +1,9 @@
 use std::ops::Mul;
 use std::time::Instant;
+use std::vec;
 use cgmath::InnerSpace;
 use image::{EncodableLayout, ImageBuffer};
+use crate::hit::Hit;
 // https://doc.rust-kr.org/ch17-00-oop.html
 use crate::ray::Ray;
 use crate::sphere::Sphere;
@@ -13,25 +15,90 @@ pub struct Raytracer {
 
     sphere: Sphere,
     light: Light,
+
+    objects: Vec<Sphere>,
 }
 
 impl Raytracer {
     pub fn new(width: i32, height: i32) -> Self {
-        let mut sphere = Sphere::new(cgmath::vec3(0.0, 0.0, 0.5), 0.5);
-        sphere.amb = cgmath::vec3(0.0, 0.0, 0.0);
-        sphere.diff = cgmath::vec3(0.0, 0.0, 1.0);
-        sphere.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        sphere.alpha = 9.0;
-        sphere.ks = 0.8;
+        let mut sphere0 = Sphere::new(cgmath::vec3(0.5, 0.0, 0.5), 0.5);
+        sphere0.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        sphere0.diff = cgmath::vec3(1.0, 0.2, 0.2);
+        sphere0.spec = cgmath::vec3(0.5, 0.5, 0.5);
+        sphere0.alpha = 10.0;
+        sphere0.ks = 0.8;
+
+        let mut sphere1 = Sphere::new(cgmath::vec3(0.5, 0.0, 0.5), 0.5);
+        sphere1.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        sphere1.diff = cgmath::vec3(1.0, 0.2, 0.2);
+        sphere1.spec = cgmath::vec3(0.5, 0.5, 0.5);
+        sphere1.alpha = 10.0;
+        sphere1.ks = 0.8;
+
+        let mut sphere2 = Sphere::new(cgmath::vec3(0.0, 0.0, 1.0), 0.5);
+        sphere2.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        sphere2.diff = cgmath::vec3(0.2, 1.0, 0.2);
+        sphere2.spec = cgmath::vec3(0.5, 0.5, 0.5);
+        sphere2.alpha = 10.0;
+        sphere2.ks = 0.8;
+
+        let mut sphere3 = Sphere::new(cgmath::vec3(-0.5, 0.0, 1.5), 0.5);
+        sphere3.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        sphere3.diff = cgmath::vec3(0.2, 0.2, 1.0);
+        sphere3.spec = cgmath::vec3(0.5, 0.5, 0.5);
+        sphere3.alpha = 10.0;
+        sphere3.ks = 0.8;
+
+        let mut objects: Vec<Sphere> = Vec::new();
+
+        objects.push(sphere1);
+        objects.push(sphere2);
+        objects.push(sphere3);
 
         // located back of screen
-        let light = Light { pos: cgmath::Vector3::new(0.0, 0.0, -1.0) };
+        let light = Light { pos: cgmath::Vector3::new(0.0, 1.0, -1.0) };
 
-        Raytracer { width, height, sphere, light }
+        Raytracer { width, height, sphere: sphere0, light, objects }
     }
 
-    pub fn tracy_ray(&self, ray: Ray) -> cgmath::Vector3<f32> {
-        let hit = self.sphere.intersect_ray_collision(&ray);
+    pub fn find_closest_collision(&self, ray: &Ray) -> Hit {
+        let mut closest_hit = Hit::new(-1.0, cgmath::Vector3::new(0.0, 0.0, 0.0), cgmath::Vector3::new(0.0, 0.0, 0.0));
+        let mut closest_distance = f32::MAX;
+
+        for l in &self.objects {
+            let hit = l.intersect_ray_collision(ray);
+
+            if (hit.d < 0.0) {
+                continue;
+            }
+
+            if (hit.d < closest_distance) {
+                closest_distance = hit.d;
+
+                closest_hit.d = hit.d;
+                closest_hit.normal = hit.normal;
+
+                // 이걸 조금 더 어떻게 잘 짤 수 있을까?
+                let mut s = Sphere::new(l.center, l.radius);
+                s.amb = l.amb;
+                s.diff = l.diff;
+                s.spec = l.spec;
+                s.alpha = l.alpha;
+
+                // println!("{:}, {:}, {:}, {:}", l.amb.x, l.diff.x, l.spec.x, l.alpha);
+
+                closest_hit.object = s;
+            }
+        }
+
+        closest_hit
+    }
+
+    pub fn tracy_ray(&self, ray: &Ray) -> cgmath::Vector3<f32> {
+        // let hit = self.sphere.intersect_ray_collision(&ray);
+
+        let hit = self.find_closest_collision(ray);
+        // println!("{:}", hit.d);
 
         if hit.d < 0.0 {
             cgmath::vec3(0.0, 0.0, 0.0)
@@ -50,9 +117,11 @@ impl Raytracer {
 
             let specular = cgmath::dot(r, e)
                 .max(0.0)
-                .powf(self.sphere.alpha);
+                .powf(hit.object.alpha);
 
-            self.sphere.amb + (self.sphere.diff * diff) + (self.sphere.spec * specular * self.sphere.ks)
+            hit.object.amb + (hit.object.diff * diff) + (hit.object.spec * specular)
+            // self.sphere.amb + (self.sphere.diff * diff) + (self.sphere.spec * specular)
+            // self.sphere.amb + (self.sphere.diff * diff) + (self.sphere.spec * specular * self.sphere.ks)
         }
     }
 
@@ -70,7 +139,7 @@ impl Raytracer {
                 let ray_dir = cgmath::vec3(0.0, 0.0, 1.0);
 
                 let pixel_ray = Ray { dir: ray_dir, start: pixel_pos_world };
-                let color = self.tracy_ray(pixel_ray);
+                let color = self.tracy_ray(&pixel_ray);
 
                 let r = (color.x * 255.0).clamp(0.0, 255.0) as u8;
                 let g = (color.y * 255.0).clamp(0.0, 255.0) as u8;

@@ -18,11 +18,11 @@ impl Object {
         }
     }
 
-    pub fn intersect_ray_collision(&self, ray: &Ray) -> Hit {
-        Hit {
-            d: 0.0,
-            point: cgmath::Vector3::new(0.0, 0.0, 0.0),
-            normal: cgmath::Vector3::new(0.0, 0.0, 0.0),
-        }
-    }
+    // pub fn intersect_ray_collision(&self, ray: &Ray) -> Hit {
+    //     Hit {
+    //         d: 0.0,
+    //         point: cgmath::Vector3::new(0.0, 0.0, 0.0),
+    //         normal: cgmath::Vector3::new(0.0, 0.0, 0.0),
+    //     }
+    // }
 }

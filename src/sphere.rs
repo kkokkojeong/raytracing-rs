@@ -33,11 +33,7 @@ impl Sphere {
 
         // Wikipedia Line–sphere intersection
         // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-        let mut hit = Hit {
-            d: -1.0,
-            point: cgmath::vec3(0.0, 0.0, 0.0),
-            normal: cgmath::vec3(0.0, 0.0, 0.0)
-        };
+        let mut hit = Hit::new(-1.0, cgmath::vec3(0.0, 0.0, 0.0), cgmath::vec3(0.0, 0.0, 0.0));
 
         let to_ray_dir = ray.start - self.center;
 
