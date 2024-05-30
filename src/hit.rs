@@ -1,3 +1,4 @@
+use crate::ray::Ray;
 use crate::sphere::Sphere;
 
 pub struct Hit {
@@ -8,7 +9,8 @@ pub struct Hit {
     // 나중에 물체의 재질 등을 가져오기 위한 포인터
     // 리팩토링 필요
     // pub object: Option<Sphere>,
-    pub object: Sphere,
+    // pub object: Sphere,
+    pub object: Option<Sphere>,
 }
 
 impl Hit {
@@ -17,7 +19,12 @@ impl Hit {
             d,
             point: point.clone(),
             normal: normal.clone(),
-            object: Sphere::new(cgmath::Vector3::new(0.0, 0.0, 0.0), 0.0)
+            object: None
         }
     }
+}
+
+// interface 같은 역할. 각 Object 에서 intersect_ray_collision 메소드 구현
+pub trait Hittable {
+    fn intersect_ray_collision(&self, ray: &Ray) -> Hit;
 }

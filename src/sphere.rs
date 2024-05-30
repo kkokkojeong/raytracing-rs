@@ -1,7 +1,6 @@
-use std::ops::{Add, Sub};
 use cgmath::InnerSpace;
 use crate::ray::Ray;
-use crate::hit::Hit;
+use crate::hit::{Hit, Hittable};
 
 pub struct Sphere {
     // geometry properties
@@ -28,9 +27,10 @@ impl Sphere {
             alpha: 0.0
         }
     }
+}
 
-    pub fn intersect_ray_collision(&self, ray: &Ray) -> Hit {
-
+impl Hittable for Sphere {
+    fn intersect_ray_collision(&self, ray: &Ray) -> Hit {
         // Wikipedia Line–sphere intersection
         // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         let mut hit = Hit::new(-1.0, cgmath::vec3(0.0, 0.0, 0.0), cgmath::vec3(0.0, 0.0, 0.0));

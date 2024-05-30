@@ -1,9 +1,8 @@
-use std::ops::Mul;
 use std::time::Instant;
-use std::vec;
 use cgmath::InnerSpace;
 use image::{EncodableLayout, ImageBuffer};
-use crate::hit::Hit;
+use crate::hit::{Hit, Hittable};
+
 // https://doc.rust-kr.org/ch17-00-oop.html
 use crate::ray::Ray;
 use crate::sphere::Sphere;
@@ -87,7 +86,7 @@ impl Raytracer {
 
                 // println!("{:}, {:}, {:}, {:}", l.amb.x, l.diff.x, l.spec.x, l.alpha);
 
-                closest_hit.object = s;
+                closest_hit.object = Some(s);
             }
         }
 
@@ -104,6 +103,7 @@ impl Raytracer {
             cgmath::vec3(0.0, 0.0, 0.0)
         } else {
             // Phong reflection model.
+            let object = hit.object.unwrap();
 
             // diffuse
             let l = (self.light.pos - hit.point).normalize();
@@ -117,9 +117,9 @@ impl Raytracer {
 
             let specular = cgmath::dot(r, e)
                 .max(0.0)
-                .powf(hit.object.alpha);
+                .powf(object.alpha);
 
-            hit.object.amb + (hit.object.diff * diff) + (hit.object.spec * specular)
+            object.amb + (object.diff * diff) + (object.spec * specular)
             // self.sphere.amb + (self.sphere.diff * diff) + (self.sphere.spec * specular)
             // self.sphere.amb + (self.sphere.diff * diff) + (self.sphere.spec * specular * self.sphere.ks)
         }
