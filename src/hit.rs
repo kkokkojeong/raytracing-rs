@@ -10,7 +10,7 @@ pub struct Hit {
     // 리팩토링 필요
     // pub object: Option<Sphere>,
     // pub object: Sphere,
-    pub object: Option<Sphere>,
+    pub object: Option<Box<dyn Hittable>>,
 }
 
 impl Hit {

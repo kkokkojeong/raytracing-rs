@@ -6,7 +6,7 @@ pub mod hit;
 pub mod light;
 pub mod state;
 pub mod texture;
-pub mod object;
+pub mod triangle;
 
 
 /*
