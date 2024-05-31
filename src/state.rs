@@ -1,5 +1,5 @@
 use std::iter;
-use image::{EncodableLayout, ImageBuffer, RgbaImage};
+use image;
 use wgpu::util::DeviceExt;
 
 use winit::event::WindowEvent;
@@ -75,7 +75,7 @@ pub struct State<'a> {
 
 impl<'a> State<'a> {
     // Creating some of the wgpu types requires async code
-    pub async fn new(window: &'a Window, mut imgbuf: &mut ImageBuffer<image::Rgb<u8>, Vec<u8>>) -> State<'a> {
+    pub async fn new(window: &'a Window, imgbuf: &mut image::ImageBuffer<image::Rgb<u8>, Vec<u8>>) -> State<'a> {
         let size = window.inner_size();
 
         // the instance is a handle to our GPU
@@ -286,7 +286,7 @@ impl<'a> State<'a> {
         }
     }
 
-    pub fn input(&mut self, event: &WindowEvent) -> bool {
+    pub fn input(&mut self, _event: &WindowEvent) -> bool {
         false
     }
 

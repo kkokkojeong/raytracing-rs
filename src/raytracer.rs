@@ -12,7 +12,7 @@ pub struct Raytracer {
     pub width: i32,
     pub height: i32,
 
-    sphere: Sphere,
+    // sphere: Sphere,
     light: Light,
 
     objects: Vec<Sphere>,
@@ -57,7 +57,7 @@ impl Raytracer {
         // located back of screen
         let light = Light { pos: cgmath::Vector3::new(0.0, 1.0, -1.0) };
 
-        Raytracer { width, height, sphere: sphere0, light, objects }
+        Raytracer { width, height, light, objects }
     }
 
     pub fn find_closest_collision(&self, ray: &Ray) -> Hit {
@@ -67,11 +67,11 @@ impl Raytracer {
         for l in &self.objects {
             let hit = l.intersect_ray_collision(ray);
 
-            if (hit.d < 0.0) {
+            if hit.d < 0.0 {
                 continue;
             }
 
-            if (hit.d < closest_distance) {
+            if hit.d < closest_distance {
                 closest_distance = hit.d;
 
                 closest_hit.d = hit.d;
@@ -125,7 +125,7 @@ impl Raytracer {
         }
     }
 
-    pub fn render(&self, mut imgbuf: &mut ImageBuffer<image::Rgb<u8>, Vec<u8>>) {
+    pub fn render(&self, imgbuf: &mut ImageBuffer<image::Rgb<u8>, Vec<u8>>) {
         println!("start of render!");
 
         let start = Instant::now();

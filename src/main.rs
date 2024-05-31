@@ -1,4 +1,3 @@
-use image::{DynamicImage, EncodableLayout, RgbaImage};
 use raytracing_rs::raytracer::Raytracer;
 use raytracing_rs::state::State;
 
@@ -6,7 +5,7 @@ use winit::{
     event::*,
     event_loop::EventLoop,
     keyboard::{KeyCode, PhysicalKey},
-    window::{Window, WindowBuilder},
+    window::{WindowBuilder},
 };
 use winit::event::ElementState;
 
@@ -24,9 +23,7 @@ async fn run() {
     // image buffer
     let mut img_buff = image::RgbImage::new(width as u32, height as u32);
 
-    /**
-     * Start ray tracing
-     */
+    // Start ray tracing
     let ray = Raytracer::new(width, height);
     ray.render(&mut img_buff);
 

@@ -1,5 +1,5 @@
 use anyhow::*;
-use image::{DynamicImage, GenericImageView};
+use image::{GenericImageView};
 
 pub struct Texture {
     pub texture: wgpu::Texture,

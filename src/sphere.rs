@@ -42,7 +42,7 @@ impl Hittable for Sphere {
 
         let det = b * b - 4.0 * c;
 
-        if (det >= 0.0) {
+        if det >= 0.0 {
             let d1 = (-b - det.sqrt()) / 2.0;
             let d2 = (-b + det.sqrt()) / 2.0;
 
