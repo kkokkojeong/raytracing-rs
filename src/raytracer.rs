@@ -1,18 +1,13 @@
 use std::time::Instant;
 use cgmath::InnerSpace;
 use image::{EncodableLayout, ImageBuffer};
-use crate::hit::{Hit, Hittable};
+use crate::hit::{Hit, Hittable, Object};
 
 // https://doc.rust-kr.org/ch17-00-oop.html
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::light::Light;
 use crate::triangle::Triangle;
-
-enum Object {
-    Sphere(Sphere),
-    Triangle(Triangle),
-}
 
 pub struct Raytracer {
     pub width: i32,
@@ -48,17 +43,25 @@ impl Raytracer {
         // sphere3.ks = 0.8;
 
         // triangle 2개로 rectangle 생성
-        let triangle1 = Triangle::new(
+        let mut triangle1 = Triangle::new(
             cgmath::vec3(-2.0, -2.0, 2.0),
             cgmath::vec3(-2.0, 2.0, 2.0),
             cgmath::vec3(2.0, 2.0, 2.0)
         );
-        let triangle2 = Triangle::new(
+        triangle1.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        triangle1.diff = cgmath::vec3(0.5, 0.5, 0.5);
+        triangle1.spec = cgmath::vec3(0.5, 0.5, 0.5);
+        triangle1.alpha = 5.0;
+
+        let mut triangle2 = Triangle::new(
             cgmath::vec3(-2.0, -2.0, 2.0),
             cgmath::vec3(2.0, 2.0, 2.0),
             cgmath::vec3(2.0, -2.0, 2.0)
         );
-
+        triangle2.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        triangle2.diff = cgmath::vec3(0.5, 0.5, 0.5);
+        triangle2.spec = cgmath::vec3(0.5, 0.5, 0.5);
+        triangle2.alpha = 5.0;
 
         let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
 
@@ -67,7 +70,7 @@ impl Raytracer {
         // objects.push(sphere1);
         objects.push(Box::new(sphere1));
         objects.push(Box::new(triangle1));
-        // objects.push(Box::new(triangle2));
+        objects.push(Box::new(triangle2));
 
         // located back of screen
         let light = Light { pos: cgmath::Vector3::new(0.0, 1.0, -1.0) };
@@ -92,16 +95,7 @@ impl Raytracer {
                 closest_hit.d = hit.d;
                 closest_hit.normal = hit.normal;
 
-                // 이걸 조금 더 어떻게 잘 짤 수 있을까?
-                // let mut s = Sphere::new(l.center, l.radius);
-                // s.amb = l.amb;
-                // s.diff = l.diff;
-                // s.spec = l.spec;
-                // s.alpha = l.alpha;
-
-                // println!("{:}, {:}, {:}, {:}", l.amb.x, l.diff.x, l.spec.x, l.alpha);
-
-                // closest_hit.object = Some((*l).clone());
+                closest_hit.object = Some(l.as_object());
             }
         }
 
@@ -109,38 +103,17 @@ impl Raytracer {
     }
 
     pub fn tracy_ray(&self, ray: &Ray) -> cgmath::Vector3<f32> {
-        // let hit = self.sphere.intersect_ray_collision(&ray);
-
         let hit = self.find_closest_collision(ray);
-        // println!("{:}", hit.d);
 
         if hit.d < 0.0 {
             cgmath::vec3(0.0, 0.0, 0.0)
         } else {
-            // Phong reflection model.
-            // let object = hit.object.unwrap();
 
-            // diffuse
-            let l = (self.light.pos - hit.point).normalize();
-            let n = hit.normal.normalize();
-
-            let diff = cgmath::dot(n, l).max(0.0);
-
-            // specular
-            let r = 2.0 * cgmath::dot(n, l) * n - l;
-            let e = (-1.0 * ray.dir).normalize();
-
-            // object.
-
-            // let specular = cgmath::dot(r, e)
-            //     .max(0.0)
-            //     .powf(object.alpha);
-            //
-            // object.amb + (object.diff * diff) + (object.spec * specular)
-            // self.sphere.amb + (self.sphere.diff * diff) + (self.sphere.spec * specular)
-            // self.sphere.amb + (self.sphere.diff * diff) + (self.sphere.spec * specular * self.sphere.ks)
-
-            cgmath::vec3(1.0, 0.0, 0.0)
+            if let Some(ref object) = hit.object {
+                self.calculate_phong_model_color(&hit, &ray, &object)
+            } else {
+                cgmath::vec3(0.0, 0.0, 0.0)
+            }
         }
     }
 
@@ -193,6 +166,42 @@ impl Raytracer {
             -pos.y * y_scale + 1.0,
             0.0,
         )
+    }
+
+    fn calculate_phong_model_color(
+        &self,
+        hit: &Hit,
+        ray: &Ray,
+        object: &Object
+    ) -> cgmath::Vector3<f32> {
+        let mut color = cgmath::vec3(0.0, 0.0, 0.0);
+
+        // diffuse
+        let l = (self.light.pos - hit.point).normalize();
+        let n = hit.normal.normalize();
+
+        let diff = cgmath::dot(n, l).max(0.0);
+
+        // specular
+        let r = 2.0 * cgmath::dot(n, l) * n - l;
+        let e = (-1.0 * ray.dir).normalize();
+
+        let specular = cgmath::dot(r, e)
+            .max(0.0);
+
+        match object {
+            Object::Sphere(s) => {
+                let specular_pow = specular.powf(s.alpha);
+                color = s.amb + (s.diff * diff) + (s.spec * specular_pow);
+            },
+            Object::Triangle(t) => {
+                let specular_pow = specular.powf(t.alpha);
+                color = t.amb + (t.diff * diff) + (t.spec * specular_pow);
+            },
+            _ => {}
+        }
+
+        color
     }
 }
 

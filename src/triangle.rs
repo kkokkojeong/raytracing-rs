@@ -1,5 +1,5 @@
 use cgmath::InnerSpace;
-use crate::hit::{Hit, Hittable};
+use crate::hit::{Hit, Hittable, Object};
 use crate::ray::Ray;
 
 pub struct Triangle {
@@ -87,7 +87,7 @@ impl Hittable for Triangle {
         let mut hit = Hit::new(-1.0, cgmath::vec3(0.0, 0.0, 0.0), cgmath::vec3(0.0, 0.0, 0.0));
 
         let mut point = cgmath::vec3(0.0, 0.0, 0.0);
-        let mut face_normal = cgmath::vec3(0.0, 0.0, 0.0);;
+        let mut face_normal = cgmath::vec3(0.0, 0.0, 0.0);
         let mut t: f32 = -1.0;
 
 
@@ -107,5 +107,16 @@ impl Hittable for Triangle {
         }
 
         hit
+    }
+
+    fn as_object(&self) -> Object {
+        let mut triangle = Triangle::new(self.v0, self.v1, self.v2);
+        triangle.amb = self.amb;
+        triangle.diff = self.diff;
+        triangle.spec = self.spec;
+        triangle.ks = self.ks;
+        triangle.alpha = self.alpha;
+
+        Object::Triangle(triangle)
     }
 }

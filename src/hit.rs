@@ -1,5 +1,11 @@
 use crate::ray::Ray;
 use crate::sphere::Sphere;
+use crate::triangle::Triangle;
+
+pub enum Object {
+    Triangle(Triangle),
+    Sphere(Sphere),
+}
 
 pub struct Hit {
     pub d: f32, // distance from the start of ray
@@ -7,10 +13,7 @@ pub struct Hit {
     pub normal: cgmath::Vector3<f32>, // normal vector of collision point
 
     // 나중에 물체의 재질 등을 가져오기 위한 포인터
-    // 리팩토링 필요
-    // pub object: Option<Sphere>,
-    // pub object: Sphere,
-    pub object: Option<Box<dyn Hittable>>,
+    pub object: Option<Object>,
 }
 
 impl Hit {
@@ -27,4 +30,5 @@ impl Hit {
 // interface 같은 역할. 각 Object 에서 intersect_ray_collision 메소드 구현
 pub trait Hittable {
     fn intersect_ray_collision(&self, ray: &Ray) -> Hit;
+    fn as_object(&self) -> Object;
 }

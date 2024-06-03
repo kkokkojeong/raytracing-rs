@@ -1,6 +1,6 @@
 use cgmath::InnerSpace;
 use crate::ray::Ray;
-use crate::hit::{Hit, Hittable};
+use crate::hit::{Hit, Hittable, Object};
 
 pub struct Sphere {
     // geometry properties
@@ -51,6 +51,17 @@ impl Hittable for Sphere {
             hit.normal = (hit.point - self.center).normalize();
         }
 
-        return hit;
+        hit
+    }
+
+    fn as_object(&self) -> Object {
+        let mut sphere = Sphere::new(self.center, self.radius);
+        sphere.amb = self.amb;
+        sphere.diff = self.diff;
+        sphere.spec = self.spec;
+        sphere.ks = self.ks;
+        sphere.alpha = self.alpha;
+
+        Object::Sphere(sphere)
     }
 }
