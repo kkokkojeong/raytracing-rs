@@ -30,4 +30,6 @@ cargo run --package raytracing-rs --bin raytracing-rs
 ### Perspective View
 ![perspective](./output/perspective_view.png)
 
+### Triangle
+![triangle](./output/triangle.png)
 
