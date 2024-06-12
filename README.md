@@ -33,3 +33,6 @@ cargo run --package raytracing-rs --bin raytracing-rs
 ### Triangle
 ![triangle](./output/triangle.png)
 
+### Shadow
+![shadow](./output/shadow.png)
+

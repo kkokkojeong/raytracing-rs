@@ -1,3 +1,4 @@
+use std::ops::Sub;
 use std::time::Instant;
 use cgmath::InnerSpace;
 use image::{EncodableLayout, ImageBuffer};
@@ -69,8 +70,8 @@ impl Raytracer {
         // objects.push(sphere2);
         // objects.push(sphere1);
         objects.push(Box::new(sphere1));
-        // objects.push(Box::new(triangle1));
-        // objects.push(Box::new(triangle2));
+        objects.push(Box::new(triangle1));
+        objects.push(Box::new(triangle2));
 
         // located back of screen
         let light = Light { pos: cgmath::vec3(0.0, 1.0, 0.2) };
@@ -94,6 +95,7 @@ impl Raytracer {
 
                 closest_hit.d = hit.d;
                 closest_hit.normal = hit.normal;
+                closest_hit.point = hit.point;
                 closest_hit.object = Some(l.as_object());
             }
         }
@@ -107,44 +109,29 @@ impl Raytracer {
         let mut color = cgmath::vec3(0.0, 0.0, 0.0);
 
         if hit.d >= 0.0 {
+
             if let Some(ref object) = hit.object {
+                color = self.get_ambient_color(object);
 
-                println!("{:?} {:}", hit.normal, hit.normal.magnitude());
+                let dir_light = (self.light.pos - hit.point).normalize();
 
-                color = self.calculate_phong_model_color(&hit, &ray, &object);
+                let shadow_ray = Ray { start: hit.point + (dir_light * 1e-4f32), dir: dir_light };
 
-                // color = cgmath::vec3(1.0, 0.0, 0.0);
-                //
-                // let dir_light = (self.light.pos - hit.point).normalize();
-                //
-                // let shadow_ray = Ray { start: hit.point + (dir_light * 1e-4f32), dir: dir_light };
-                //
-                // let shadow_hit = self.find_closest_collision(&shadow_ray);
-                //
-                // // 라이트가 그림자를 드리울 물체보다 가까이 있는 경우에도 (라이트가 가려지지 않는 경우에도) 그림자를 그리게 됩니다.
-                // // 아래처럼 코드를 수정해주시면 조금 더 물리적으로 정확한 그림자를 표시할 수 있을 것 같습니다.
-                // // FindClosestCollision(shadowRay).d > glm::length(light.pos - hit.point)
-                // let light_hit = self.light.pos - hit.point;
-                //
-                // // 충돌이 없을 경우, shadow ray 가 빛을 향한다는 의미이기 때문에 기존처럼 color 계산
-                // if shadow_hit.d < 0.0 {
-                //     color = self.calculate_phong_model_color(&hit, &ray, &object);
-                // }
+                let shadow_hit = self.find_closest_collision(&shadow_ray);
+
+                // 라이트가 그림자를 드리울 물체보다 가까이 있는 경우에도 (라이트가 가려지지 않는 경우에도) 그림자를 그리게 됩니다.
+                // 아래처럼 코드를 수정해주시면 조금 더 물리적으로 정확한 그림자를 표시할 수 있을 것 같습니다.
+                // FindClosestCollision(shadowRay).d > glm::length(light.pos - hit.point)
+                let light_hit = self.light.pos - hit.point;
+
+                // 충돌이 없을 경우, shadow ray 가 빛을 향한다는 의미이기 때문에 기존처럼 color 계산
+                if shadow_hit.d < 0.0 || shadow_hit.d > light_hit.magnitude() {
+                    color = self.calculate_phong_model_color(&hit, &ray, &object);
+                }
             }
         }
 
         color
-
-        // if hit.d < 0.0 {
-        //     cgmath::vec3(0.0, 0.0, 0.0)
-        // } else {
-        //
-        //     if let Some(ref object) = hit.object {
-        //         self.calculate_phong_model_color(&hit, &ray, &object)
-        //     } else {
-        //         cgmath::vec3(0.0, 0.0, 0.0)
-        //     }
-        // }
     }
 
     pub fn render(&self, imgbuf: &mut ImageBuffer<image::Rgb<u8>, Vec<u8>>) {
@@ -210,7 +197,7 @@ impl Raytracer {
         let l = (self.light.pos - hit.point).normalize();
         let n = hit.normal.normalize();
 
-        let diff = cgmath::dot(hit.normal, l).max(0.0);
+        let diff = cgmath::dot(n, l).max(0.0);
 
         // specular
         let r = 2.0 * cgmath::dot(n, l) * n - l;
@@ -222,14 +209,11 @@ impl Raytracer {
         match object {
             Object::Sphere(s) => {
                 let specular_pow = specular.powf(s.alpha);
-                // color = s.amb + (s.diff * diff) + (s.spec * specular_pow);
-                color = s.amb + (s.diff * diff)
+                color = s.amb + (s.diff * diff) + (s.spec * specular_pow);
             }
             Object::Triangle(t) => {
-                // println!("{:?}, {}", t.diff, diff);
                 let specular_pow = specular.powf(t.alpha);
-                // color = t.amb + (t.diff * diff) + (t.spec * specular_pow);
-                color = t.amb + (t.diff * diff)
+                color = t.amb + (t.diff * diff) + (t.spec * specular_pow);
             }
             _ => {}
         }

@@ -20,8 +20,8 @@ impl Hit {
     pub fn new(d: f32, point: cgmath::Vector3<f32>, normal: cgmath::Vector3<f32>) -> Self {
         Self {
             d,
-            point: point.clone(),
-            normal: normal.clone(),
+            point,
+            normal,
             object: None
         }
     }

@@ -46,9 +46,13 @@ impl Hittable for Sphere {
             let d1 = (-b - det.sqrt()) / 2.0;
             let d2 = (-b + det.sqrt()) / 2.0;
 
-            hit.d = d1.min(d2);
-            hit.point = ray.start + ray.dir * hit.d;
-            hit.normal = (hit.point - self.center).normalize();
+            let d = d1.min(d2);
+            let point = ray.start + (ray.dir * d);
+            let normal = (point - self.center).normalize();
+
+            hit.d = d;
+            hit.point = point;
+            hit.normal = normal;
         }
 
         hit
