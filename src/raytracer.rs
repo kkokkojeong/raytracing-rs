@@ -8,6 +8,7 @@ use crate::hit::{Hit, Hittable, Object};
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::light::Light;
+use crate::square::Square;
 use crate::triangle::Triangle;
 
 pub struct Raytracer {
@@ -64,14 +65,28 @@ impl Raytracer {
         triangle2.spec = cgmath::vec3(1.0, 1.0, 1.0);
         triangle2.alpha = 50.0;
 
+        let mut square = Square::new(
+            cgmath::vec3(-2.0, -1.0, 0.0),
+            cgmath::vec3(-2.0, -1.0, 4.0),
+            cgmath::vec3(2.0, -1.0, 4.0),
+            cgmath::vec3(2.0, -1.0, 0.0)
+        );
+        square.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        square.diff = cgmath::vec3(0.8, 0.8, 0.8);
+        square.spec = cgmath::vec3(1.0, 1.0, 1.0);
+        square.alpha = 50.0;
+
         let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
 
         // objects.push(sphere3);
         // objects.push(sphere2);
         // objects.push(sphere1);
         objects.push(Box::new(sphere1));
-        objects.push(Box::new(triangle1));
-        objects.push(Box::new(triangle2));
+        // objects.push(Box::new(triangle1));
+        // objects.push(Box::new(triangle2));
+        objects.push(Box::new(square));
+
+
 
         // located back of screen
         let light = Light { pos: cgmath::vec3(0.0, 1.0, 0.2) };
@@ -215,6 +230,10 @@ impl Raytracer {
                 let specular_pow = specular.powf(t.alpha);
                 color = t.amb + (t.diff * diff) + (t.spec * specular_pow);
             }
+            Object::Square(s) => {
+                let specular_pow = specular.powf(s.alpha);
+                color = s.amb + (s.diff * diff) + (s.spec * specular_pow);
+            }
             _ => {}
         }
 
@@ -230,6 +249,9 @@ impl Raytracer {
             }
             Object::Triangle(t) => {
                 color = t.amb;
+            }
+            Object::Square(s) => {
+                color = s.amb;
             }
             _ => {}
         }
