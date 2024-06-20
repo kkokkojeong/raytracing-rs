@@ -7,6 +7,7 @@ pub mod light;
 pub mod state;
 pub mod texture;
 pub mod triangle;
+pub mod square;
 
 
 /*

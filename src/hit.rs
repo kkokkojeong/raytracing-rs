@@ -1,10 +1,12 @@
 use crate::ray::Ray;
 use crate::sphere::Sphere;
+use crate::square::Square;
 use crate::triangle::Triangle;
 
 pub enum Object {
     Triangle(Triangle),
     Sphere(Sphere),
+    Square(Square),
 }
 
 pub struct Hit {

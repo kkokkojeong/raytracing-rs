@@ -1,4 +1,5 @@
 use cgmath::InnerSpace;
+use wgpu::naga::VectorSize::Tri;
 use crate::hit::{Hit, Hittable, Object};
 use crate::ray::Ray;
 
@@ -26,6 +27,19 @@ impl Triangle {
             spec: cgmath::Vector3::new(0.0, 0.0, 0.0),
             ks: 0.0,
             alpha: 0.0
+        }
+    }
+
+    pub fn clone(&self) -> Triangle {
+        Triangle {
+            v0: self.v0.clone(),
+            v1: self.v1.clone(),
+            v2: self.v2.clone(),
+            amb: self.amb.clone(),
+            diff: self.diff.clone(),
+            spec: self.spec.clone(),
+            ks: self.ks,
+            alpha: self.alpha
         }
     }
 
