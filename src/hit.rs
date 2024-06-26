@@ -14,6 +14,8 @@ pub struct Hit {
     pub point: cgmath::Vector3<f32>, // collision point
     pub normal: cgmath::Vector3<f32>, // normal vector of collision point
 
+    pub w: cgmath::Vector2<f32>, // 삼각형의 barycentric coordinates 저장 변수 (임시)
+
     // 나중에 물체의 재질 등을 가져오기 위한 포인터
     pub object: Option<Object>,
 }
@@ -24,6 +26,7 @@ impl Hit {
             d,
             point,
             normal,
+            w: cgmath::vec2(0.0, 0.0),
             object: None
         }
     }
