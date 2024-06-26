@@ -36,3 +36,5 @@ cargo run --package raytracing-rs --bin raytracing-rs
 ### Shadow
 ![shadow](./output/shadow.png)
 
+### Barycentric Coordinates
+![barycentric_coordinates](./output/barycentric_coordinates.png)
