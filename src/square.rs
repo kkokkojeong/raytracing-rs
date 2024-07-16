@@ -1,5 +1,6 @@
 use crate::hit::{Hit, Hittable, Object};
 use crate::ray::Ray;
+use crate::texture::Texture;
 use crate::triangle::Triangle;
 
 pub struct Square {
@@ -12,6 +13,9 @@ pub struct Square {
     pub spec: cgmath::Vector3<f32>, // specular
     pub ks: f32,
     pub alpha: f32,
+
+    pub amb_tex: Option<Texture>,
+    pub dif_tex: Option<Texture>,
 }
 
 impl Square {
@@ -24,6 +28,8 @@ impl Square {
             spec: cgmath::Vector3::new(0.0, 0.0, 0.0),
             ks: 0.0,
             alpha: 0.0,
+            amb_tex: None,
+            dif_tex: None,
         }
     }
 }
@@ -54,9 +60,19 @@ impl Hittable for Square {
             diff: self.diff,
             spec: self.spec,
             ks: self.ks,
-            alpha: self.alpha
+            alpha: self.alpha,
+            amb_tex: None,
+            dif_tex: None,
         };
 
         Object::Square(square)
+    }
+
+    fn has_ambient_texture(&self) -> bool {
+        self.amb_tex.is_some()
+    }
+
+    fn has_diffuse_texture(&self) -> bool {
+        self.dif_tex.is_some()
     }
 }

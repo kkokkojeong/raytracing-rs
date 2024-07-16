@@ -9,6 +9,7 @@ use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::light::Light;
 use crate::square::Square;
+use crate::texture::Texture;
 use crate::triangle::Triangle;
 
 pub struct Raytracer {
@@ -66,10 +67,10 @@ impl Raytracer {
         triangle2.alpha = 50.0;
 
         let mut square = Square::new(
-            cgmath::vec3(-2.0, -1.0, 0.0),
-            cgmath::vec3(-2.0, -1.0, 4.0),
-            cgmath::vec3(2.0, -1.0, 4.0),
-            cgmath::vec3(2.0, -1.0, 0.0),
+            cgmath::vec3(-2.0, 2.0, 2.0),
+            cgmath::vec3(2.0, 2.0, 2.0),
+            cgmath::vec3(2.0, -2.0, 2.0),
+            cgmath::vec3(-2.0, -2.0, 2.0),
         );
         square.amb = cgmath::vec3(0.2, 0.2, 0.2);
         square.diff = cgmath::vec3(0.8, 0.8, 0.8);
@@ -86,6 +87,12 @@ impl Raytracer {
         triangle.diff = cgmath::vec3(0.0, 0.0, 0.0);
         triangle.spec = cgmath::vec3(0.0, 0.0, 0.0);
 
+        // texture
+        let texture = Texture::new("./src/images/shadertoy_abstract1.jpg");
+
+        square.dif_tex = Option::from(texture.clone());
+        square.amb_tex = Option::from(texture.clone());
+
         let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
 
         // objects.push(sphere3);
@@ -94,10 +101,9 @@ impl Raytracer {
         objects.push(Box::new(sphere1));
         // objects.push(Box::new(triangle1));
         // objects.push(Box::new(triangle2));
-        // objects.push(Box::new(square));
+        objects.push(Box::new(square));
 
-        objects.push(Box::new(triangle));
-
+        // objects.push(Box::new(triangle));
 
         // located back of screen
         let light = Light { pos: cgmath::vec3(0.0, 1.0, 0.2) };
@@ -137,42 +143,63 @@ impl Raytracer {
 
         if hit.d >= 0.0 {
             if let Some(ref object) = hit.object {
-                color = self.get_ambient_color(object);
+                // color = self.get_ambient_color(object);
 
-                let dir_light = (self.light.pos - hit.point).normalize();
-
-                let shadow_ray = Ray { start: hit.point + (dir_light * 1e-4f32), dir: dir_light };
-
-                let shadow_hit = self.find_closest_collision(&shadow_ray);
-
-                // 라이트가 그림자를 드리울 물체보다 가까이 있는 경우에도 (라이트가 가려지지 않는 경우에도) 그림자를 그리게 됩니다.
-                // 아래처럼 코드를 수정해주시면 조금 더 물리적으로 정확한 그림자를 표시할 수 있을 것 같습니다.
-                // FindClosestCollision(shadowRay).d > glm::length(light.pos - hit.point)
-                let light_hit = self.light.pos - hit.point;
-
-                // 충돌이 없을 경우, shadow ray 가 빛을 향한다는 의미이기 때문에 기존처럼 color 계산
-                if shadow_hit.d < 0.0 || shadow_hit.d > light_hit.magnitude() {
-                    color = self.calculate_phong_model_color(&hit, &ray, &object);
-                }
+                // shadow 기능 비활성화
+                // let dir_light = (self.light.pos - hit.point).normalize();
+                //
+                // let shadow_ray = Ray { start: hit.point + (dir_light * 1e-4f32), dir: dir_light };
+                //
+                // let shadow_hit = self.find_closest_collision(&shadow_ray);
+                //
+                // // 라이트가 그림자를 드리울 물체보다 가까이 있는 경우에도 (라이트가 가려지지 않는 경우에도) 그림자를 그리게 됩니다.
+                // // 아래처럼 코드를 수정해주시면 조금 더 물리적으로 정확한 그림자를 표시할 수 있을 것 같습니다.
+                // // FindClosestCollision(shadowRay).d > glm::length(light.pos - hit.point)
+                // let light_hit = self.light.pos - hit.point;
+                //
+                // // 충돌이 없을 경우, shadow ray 가 빛을 향한다는 의미이기 때문에 기존처럼 color 계산
+                // if shadow_hit.d < 0.0 || shadow_hit.d > light_hit.magnitude() {
+                //     color = self.calculate_phong_model_color(&hit, &ray, &object);
+                // }
 
                 // Barycentric Coordinates 테스트 코드
+                // match object {
+                //     Object::Triangle(s) => {
+                //         // interpolation
+                //         let color0 = cgmath::vec3(1.0 ,0.0 ,0.0);
+                //         let color1 = cgmath::vec3(0.0 ,1.0 ,0.0);
+                //         let color2 = cgmath::vec3(0.0 ,0.0 ,1.0);
+                //
+                //         let w0 = hit.w.x;
+                //         let w1 = hit.w.y;
+                //         let w2 = 1.0 - w0 - w1;
+                //
+                //         // println!("{:} {:} {:}", w0, w1, w2);
+                //
+                //         color = color0 * w0 + color1 * w1 + color2 * w2;
+                //     }
+                //     _ => {}
+                // }
+
+                let point_color: cgmath::Vector3<f32>;
+                let diff_color: cgmath::Vector3<f32>;
+
                 match object {
-                    Object::Triangle(s) => {
-                        // interpolation
-                        let color0 = cgmath::vec3(1.0 ,0.0 ,0.0);
-                        let color1 = cgmath::vec3(0.0 ,1.0 ,0.0);
-                        let color2 = cgmath::vec3(0.0 ,0.0 ,1.0);
-
-                        let w0 = hit.w.x;
-                        let w1 = hit.w.y;
-                        let w2 = 1.0 - w0 - w1;
-
-                        // println!("{:} {:} {:}", w0, w1, w2);
-
-                        color = color0 * w0 + color1 * w1 + color2 * w2;
+                    // Object::Sphere(s) => {
+                    //     point_color = s.amb;
+                    //     diff_color =
+                    // },
+                    Object::Square(s) => {
+                        if s.amb_tex.is_some() {
+                            // 여기부터 다시 시작
+                            point_color = s.as_ref().amb_tex.unwrap().get_sample_point();
+                        } else {
+                            point_color = s.amb;
+                        }
                     }
                     _ => {}
                 }
+                // if object
             }
         }
 

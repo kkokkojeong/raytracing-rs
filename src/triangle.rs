@@ -161,4 +161,12 @@ impl Hittable for Triangle {
 
         Object::Triangle(triangle)
     }
+
+    fn has_ambient_texture(&self) -> bool {
+        false
+    }
+
+    fn has_diffuse_texture(&self) -> bool {
+        false
+    }
 }

@@ -8,8 +8,7 @@ pub mod state;
 pub mod wgpu_texture_util;
 pub mod triangle;
 pub mod square;
-
-
+pub mod texture;
 /*
 * WebAssembly (WASM) 시 도전!
 */

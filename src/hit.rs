@@ -36,4 +36,6 @@ impl Hit {
 pub trait Hittable {
     fn intersect_ray_collision(&self, ray: &Ray) -> Hit;
     fn as_object(&self) -> Object;
+    fn has_ambient_texture(&self) -> bool;
+    fn has_diffuse_texture(&self) -> bool;
 }
