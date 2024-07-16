@@ -5,7 +5,7 @@ use wgpu::util::DeviceExt;
 use winit::event::WindowEvent;
 use winit::window::Window;
 
-use crate::texture;
+use crate::wgpu_texture_util;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -146,7 +146,7 @@ impl<'a> State<'a> {
         //     texture::Texture::from_bytes(&device, &queue, diffuse_bytes, "image").unwrap();
 
         let diffuse_texture =
-            texture::Texture::from_image_buffer(&device, &queue, imgbuf, Some("texture")).unwrap();
+            wgpu_texture_util::WgpuTextureUtil::from_image_buffer(&device, &queue, imgbuf, Some("texture")).unwrap();
 
         let texture_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {

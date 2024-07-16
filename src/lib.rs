@@ -5,7 +5,7 @@ pub mod sphere;
 pub mod hit;
 pub mod light;
 pub mod state;
-pub mod texture;
+pub mod wgpu_texture_util;
 pub mod triangle;
 pub mod square;
 
