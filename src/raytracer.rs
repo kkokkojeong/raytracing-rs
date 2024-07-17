@@ -77,6 +77,10 @@ impl Raytracer {
             cgmath::vec2(1.0, 0.0),
             cgmath::vec2(1.0, 1.0),
             cgmath::vec2(0.0, 1.0),
+            // cgmath::vec2(0.0, 0.0),
+            // cgmath::vec2(4.0, 0.0),
+            // cgmath::vec2(4.0, 4.0),
+            // cgmath::vec2(0.0, 4.0),
         );
         square.amb = cgmath::vec3(0.2, 0.2, 0.2);
         square.diff = cgmath::vec3(0.8, 0.8, 0.8);
@@ -215,7 +219,7 @@ impl Raytracer {
                 // texture calculation - ambient
                 if amb_texture.is_some() {
                     color = amb.mul_element_wise(
-                        amb_texture.as_ref().expect("fail to access the texture").get_sample_point(&hit.uv)
+                        amb_texture.as_ref().expect("fail to access the texture").get_sample_linear(&hit.uv)
                     );
                 } else {
                     color = amb;
@@ -224,7 +228,7 @@ impl Raytracer {
                 // texture calculation - diffuse
                 if dif_texture.is_some() {
                     color += diffuse.mul_element_wise(
-                        dif_texture.as_ref().expect("fail to access the texture").get_sample_point(&hit.uv)
+                        dif_texture.as_ref().expect("fail to access the texture").get_sample_linear(&hit.uv)
                     );
                 } else {
                     color += diffuse;
