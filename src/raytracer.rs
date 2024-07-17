@@ -25,7 +25,7 @@ pub struct Raytracer {
 impl Raytracer {
     pub fn new(width: i32, height: i32) -> Self {
         let mut sphere1 = Sphere::new(cgmath::vec3(1.0, 0.0, 1.5), 0.4);
-        sphere1.amb = cgmath::vec3(1.0, 0.2, 0.2);
+        sphere1.amb = cgmath::vec3(0.2, 0.2, 0.2);
         sphere1.diff = cgmath::vec3(1.0, 0.2, 0.2);
         sphere1.spec = cgmath::vec3(0.5, 0.5, 0.5);
         sphere1.alpha = 10.0;
@@ -104,15 +104,15 @@ impl Raytracer {
         // objects.push(sphere3);
         // objects.push(sphere2);
         // objects.push(sphere1);
-        // objects.push(Box::new(sphere1));
         // objects.push(Box::new(triangle1));
         // objects.push(Box::new(triangle2));
         objects.push(Box::new(square));
+        objects.push(Box::new(sphere1));
 
         // objects.push(Box::new(triangle));
 
         // located back of screen
-        let light = Light { pos: cgmath::vec3(0.0, 1.0, 0.2) };
+        let light = Light { pos: cgmath::vec3(0.0, 1.0, 0.5) };
 
         Raytracer { width, height, light, objects }
     }
@@ -203,7 +203,7 @@ impl Raytracer {
                 let diffuse = cgmath::dot(n, l).max(0.0) * diff;
 
                 // specular
-                let r = l - n * 2.0 * cgmath::dot(n, l);
+                let r = 2.0 * cgmath::dot(n, l) * n - l;
                 let e = (-1.0 * ray.dir).normalize();
 
                 let specular = spec * cgmath::dot(r, e).max(0.0).powf(alpha);
@@ -211,12 +211,10 @@ impl Raytracer {
                 // texture calculation
                 let texture = object.get_texture();
                 if texture.is_some() {
-
                     color = texture.as_ref().expect("fail to access the texture").get_sample_point(&hit.uv);
                 } else {
                     color = amb + diffuse + specular;
                 }
-                //
 
                 // color = amb + diffuse + specular;
 
