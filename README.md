@@ -38,3 +38,7 @@ cargo run --package raytracing-rs --bin raytracing-rs
 
 ### Barycentric Coordinates
 ![barycentric_coordinates](./output/barycentric_coordinates.png)
+
+### Texturing
+![Texturing](./output/texturing.png)
+
