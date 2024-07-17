@@ -69,11 +69,11 @@ impl Hittable for Sphere {
         }
     }
 
-    fn get_texture_properties(&self) -> Option<Texture> {
-        None
+    fn get_ambient_texture(&self) -> &Option<Texture> {
+        &None
     }
 
-    fn get_texture(&self) -> &Option<Texture> {
+    fn get_diffuse_texture(&self) -> &Option<Texture> {
         &None
     }
 }

@@ -53,6 +53,6 @@ impl Hit<'_> {
 pub trait Hittable {
     fn intersect_ray_collision(&self, ray: &Ray) -> Hit;
     fn get_light_color_properties(&self) -> LightProperty;
-    fn get_texture_properties(&self) -> Option<Texture>;
-    fn get_texture(&self) -> &Option<Texture>;
+    fn get_ambient_texture(&self) -> &Option<Texture>;
+    fn get_diffuse_texture(&self) -> &Option<Texture>;
 }

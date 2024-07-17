@@ -1,6 +1,6 @@
-use std::ops::Sub;
+use std::ops::{Mul, Sub};
 use std::time::Instant;
-use cgmath::InnerSpace;
+use cgmath::{ElementWise, InnerSpace};
 use image::{EncodableLayout, ImageBuffer};
 use crate::hit::{Hit, Hittable, Object};
 
@@ -208,36 +208,29 @@ impl Raytracer {
 
                 let specular = spec * cgmath::dot(r, e).max(0.0).powf(alpha);
 
-                // texture calculation
-                let texture = object.get_texture();
-                if texture.is_some() {
-                    color = texture.as_ref().expect("fail to access the texture").get_sample_point(&hit.uv);
+
+                let amb_texture = object.get_ambient_texture();
+                let dif_texture = object.get_diffuse_texture();
+
+                // texture calculation - ambient
+                if amb_texture.is_some() {
+                    color = amb.mul_element_wise(
+                        amb_texture.as_ref().expect("fail to access the texture").get_sample_point(&hit.uv)
+                    );
                 } else {
-                    color = amb + diffuse + specular;
+                    color = amb;
                 }
 
-                // color = amb + diffuse + specular;
+                // texture calculation - diffuse
+                if dif_texture.is_some() {
+                    color += diffuse.mul_element_wise(
+                        dif_texture.as_ref().expect("fail to access the texture").get_sample_point(&hit.uv)
+                    );
+                } else {
+                    color += diffuse;
+                }
 
-                // match object {
-                //     Object::Square(s) => {
-                //         if s.amb_tex.is_some() {
-                //             // 여기부터 다시 시작
-                //
-                //             // point_color = s.amb_tex.as_ref().unwrap().get_sample_point();
-                //
-                //             color = cgmath::vec3(1.0, 0.0, 0.0);
-                //         } else {
-                //
-                //             // point_color = s.amb;
-                //         }
-                //
-                //         color = amb;
-                //     }
-                //     _ => {
-                //         color = amb + diffuse + specular;
-                //     }
-                // }
-                // if object
+                color += specular;
             }
         }
 

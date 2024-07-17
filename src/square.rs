@@ -66,11 +66,11 @@ impl Hittable for Square {
         }
     }
 
-    fn get_texture_properties(&self) -> Option<Texture> {
-        None
+    fn get_ambient_texture(&self) -> &Option<Texture> {
+        &self.amb_tex
     }
 
-    fn get_texture(&self) -> &Option<Texture> {
+    fn get_diffuse_texture(&self) -> &Option<Texture> {
         &self.dif_tex
     }
 }
