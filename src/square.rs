@@ -1,5 +1,6 @@
-use crate::hit::{Hit, Hittable, Object};
+use crate::hit::{Hit, Hittable, LightProperty, Object, TextureProperty};
 use crate::ray::Ray;
+use crate::sphere::Sphere;
 use crate::texture::Texture;
 use crate::triangle::Triangle;
 
@@ -19,10 +20,13 @@ pub struct Square {
 }
 
 impl Square {
-    pub fn new(v0: cgmath::Vector3<f32>, v1: cgmath::Vector3<f32>, v2: cgmath::Vector3<f32>, v3: cgmath::Vector3<f32>) -> Square {
+    pub fn new(
+        v0: cgmath::Vector3<f32>, v1: cgmath::Vector3<f32>, v2: cgmath::Vector3<f32>, v3: cgmath::Vector3<f32>,
+        uv0: cgmath::Vector2<f32>, uv1: cgmath::Vector2<f32>, uv2: cgmath::Vector2<f32>, uv3: cgmath::Vector2<f32>
+    ) -> Square {
         Square {
-            triangle1: Triangle::new(v0, v1, v2),
-            triangle2: Triangle::new(v0, v2, v3),
+            triangle1: Triangle::new(v0, v1, v2, uv0, uv1, uv2),
+            triangle2: Triangle::new(v0, v2, v3, uv0, uv2, uv3),
             amb: cgmath::Vector3::new(0.0, 0.0, 0.0),
             diff: cgmath::Vector3::new(0.0, 0.0, 0.0),
             spec: cgmath::Vector3::new(0.0, 0.0, 0.0),
@@ -40,8 +44,11 @@ impl Hittable for Square {
         let hit2 = self.triangle2.intersect_ray_collision(ray);
 
         if hit1.d >= 0.0 && hit2.d >= 0.0 {
-            // rust 는 삼항 연산자 사용 불가
-            if hit1.d < hit2.d { hit1 } else { hit2 }
+            if hit1.d < hit2.d {
+                hit1
+            } else {
+                hit2
+            }
         } else if hit1.d >= 0.0 {
             hit1
         } else {
@@ -49,30 +56,21 @@ impl Hittable for Square {
         }
     }
 
-    fn as_object(&self) -> Object {
-        let tri1 = self.triangle1.clone();
-        let tri2 = self.triangle2.clone();
-
-        let square = Square {
-            triangle1: tri1,
-            triangle2: tri2,
+    fn get_light_color_properties(&self) -> LightProperty {
+        LightProperty {
             amb: self.amb,
             diff: self.diff,
             spec: self.spec,
             ks: self.ks,
-            alpha: self.alpha,
-            amb_tex: None,
-            dif_tex: None,
-        };
-
-        Object::Square(square)
+            alpha: self.alpha
+        }
     }
 
-    fn has_ambient_texture(&self) -> bool {
-        self.amb_tex.is_some()
+    fn get_texture_properties(&self) -> Option<Texture> {
+        None
     }
 
-    fn has_diffuse_texture(&self) -> bool {
-        self.dif_tex.is_some()
+    fn get_texture(&self) -> &Option<Texture> {
+        &self.dif_tex
     }
 }

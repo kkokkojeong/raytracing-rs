@@ -1,12 +1,17 @@
 use cgmath::InnerSpace;
 use wgpu::naga::VectorSize::Tri;
-use crate::hit::{Hit, Hittable, Object};
+use crate::hit::{Hit, Hittable, LightProperty, Object, TextureProperty};
 use crate::ray::Ray;
+use crate::texture::Texture;
 
 pub struct Triangle {
     pub v0: cgmath::Vector3<f32>,
     pub v1: cgmath::Vector3<f32>,
     pub v2: cgmath::Vector3<f32>,
+
+    pub uv0: cgmath::Vector2<f32>,
+    pub uv1: cgmath::Vector2<f32>,
+    pub uv2: cgmath::Vector2<f32>,
 
     // light properties
     pub amb: cgmath::Vector3<f32>, // ambient
@@ -17,29 +22,22 @@ pub struct Triangle {
 }
 
 impl Triangle {
-    pub fn new(v0: cgmath::Vector3<f32>, v1: cgmath::Vector3<f32>, v2: cgmath::Vector3<f32>) -> Triangle {
+    pub fn new(
+        v0: cgmath::Vector3<f32>, v1: cgmath::Vector3<f32>, v2: cgmath::Vector3<f32>,
+        uv0: cgmath::Vector2<f32>, uv1: cgmath::Vector2<f32>, uv2: cgmath::Vector2<f32>,
+    ) -> Triangle {
         Triangle {
             v0,
             v1,
             v2,
+            uv0,
+            uv1,
+            uv2,
             amb: cgmath::Vector3::new(0.0, 0.0, 0.0),
             diff: cgmath::Vector3::new(0.0, 0.0, 0.0),
             spec: cgmath::Vector3::new(0.0, 0.0, 0.0),
             ks: 0.0,
             alpha: 0.0
-        }
-    }
-
-    pub fn clone(&self) -> Triangle {
-        Triangle {
-            v0: self.v0.clone(),
-            v1: self.v1.clone(),
-            v2: self.v2.clone(),
-            amb: self.amb.clone(),
-            diff: self.diff.clone(),
-            spec: self.spec.clone(),
-            ks: self.ks,
-            alpha: self.alpha
         }
     }
 
@@ -143,6 +141,9 @@ impl Hittable for Triangle {
             hit.point = point;
             hit.normal = face_normal;
 
+            // 텍스처 좌표
+            hit.uv = self.uv0 * w0 + self.uv1 * w1 + self.uv2 * (1.0 - w0 - w1);
+
             // Barycentric coordinates 확인용
             // println!("{:} {:}", w0, w1);
             hit.w = cgmath::vec2(w0, w1);
@@ -151,22 +152,21 @@ impl Hittable for Triangle {
         hit
     }
 
-    fn as_object(&self) -> Object {
-        let mut triangle = Triangle::new(self.v0, self.v1, self.v2);
-        triangle.amb = self.amb;
-        triangle.diff = self.diff;
-        triangle.spec = self.spec;
-        triangle.ks = self.ks;
-        triangle.alpha = self.alpha;
-
-        Object::Triangle(triangle)
+    fn get_light_color_properties(&self) -> LightProperty {
+        LightProperty {
+            amb: self.amb,
+            diff: self.diff,
+            spec: self.spec,
+            ks: self.ks,
+            alpha: self.alpha
+        }
     }
 
-    fn has_ambient_texture(&self) -> bool {
-        false
+    fn get_texture_properties(&self) -> Option<Texture> {
+        None
     }
 
-    fn has_diffuse_texture(&self) -> bool {
-        false
+    fn get_texture(&self) -> &Option<Texture> {
+        &None
     }
 }

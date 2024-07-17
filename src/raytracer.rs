@@ -25,7 +25,7 @@ pub struct Raytracer {
 impl Raytracer {
     pub fn new(width: i32, height: i32) -> Self {
         let mut sphere1 = Sphere::new(cgmath::vec3(1.0, 0.0, 1.5), 0.4);
-        sphere1.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        sphere1.amb = cgmath::vec3(1.0, 0.2, 0.2);
         sphere1.diff = cgmath::vec3(1.0, 0.2, 0.2);
         sphere1.spec = cgmath::vec3(0.5, 0.5, 0.5);
         sphere1.alpha = 10.0;
@@ -46,59 +46,65 @@ impl Raytracer {
         // sphere3.ks = 0.8;
 
         // triangle 2개로 rectangle 생성
-        let mut triangle1 = Triangle::new(
-            cgmath::vec3(-2.0, -1.0, 0.0),
-            cgmath::vec3(-2.0, -1.0, 4.0),
-            cgmath::vec3(2.0, -1.0, 4.0),
-        );
-        triangle1.amb = cgmath::vec3(0.2, 0.2, 0.2);
-        triangle1.diff = cgmath::vec3(0.8, 0.8, 0.8);
-        triangle1.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        triangle1.alpha = 50.0;
-
-        let mut triangle2 = Triangle::new(
-            cgmath::vec3(-2.0, -1.0, 0.0),
-            cgmath::vec3(2.0, -1.0, 4.0),
-            cgmath::vec3(2.0, -1.0, 0.0),
-        );
-        triangle2.amb = cgmath::vec3(0.2, 0.2, 0.2);
-        triangle2.diff = cgmath::vec3(0.8, 0.8, 0.8);
-        triangle2.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        triangle2.alpha = 50.0;
+        // let mut triangle1 = Triangle::new(
+        //     cgmath::vec3(-2.0, -1.0, 0.0),
+        //     cgmath::vec3(-2.0, -1.0, 4.0),
+        //     cgmath::vec3(2.0, -1.0, 4.0),
+        // );
+        // triangle1.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        // triangle1.diff = cgmath::vec3(0.8, 0.8, 0.8);
+        // triangle1.spec = cgmath::vec3(1.0, 1.0, 1.0);
+        // triangle1.alpha = 50.0;
+        //
+        // let mut triangle2 = Triangle::new(
+        //     cgmath::vec3(-2.0, -1.0, 0.0),
+        //     cgmath::vec3(2.0, -1.0, 4.0),
+        //     cgmath::vec3(2.0, -1.0, 0.0),
+        // );
+        // triangle2.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        // triangle2.diff = cgmath::vec3(0.8, 0.8, 0.8);
+        // triangle2.spec = cgmath::vec3(1.0, 1.0, 1.0);
+        // triangle2.alpha = 50.0;
 
         let mut square = Square::new(
+            // vertices
             cgmath::vec3(-2.0, 2.0, 2.0),
             cgmath::vec3(2.0, 2.0, 2.0),
             cgmath::vec3(2.0, -2.0, 2.0),
             cgmath::vec3(-2.0, -2.0, 2.0),
+            // uv
+            cgmath::vec2(0.0, 0.0),
+            cgmath::vec2(1.0, 0.0),
+            cgmath::vec2(1.0, 1.0),
+            cgmath::vec2(0.0, 1.0),
         );
         square.amb = cgmath::vec3(0.2, 0.2, 0.2);
         square.diff = cgmath::vec3(0.8, 0.8, 0.8);
         square.spec = cgmath::vec3(1.0, 1.0, 1.0);
         square.alpha = 50.0;
 
-
-        let mut triangle = Triangle::new(
-            cgmath::vec3(-2.0, -2.0, 2.0),
-            cgmath::vec3(-2.0, 2.0, 2.0),
-            cgmath::vec3(2.0, 2.0, 2.0),
-        );
-        triangle.amb = cgmath::vec3(1.0, 1.0, 1.0);
-        triangle.diff = cgmath::vec3(0.0, 0.0, 0.0);
-        triangle.spec = cgmath::vec3(0.0, 0.0, 0.0);
+        //
+        // let mut triangle = Triangle::new(
+        //     cgmath::vec3(-2.0, -2.0, 2.0),
+        //     cgmath::vec3(-2.0, 2.0, 2.0),
+        //     cgmath::vec3(2.0, 2.0, 2.0),
+        // );
+        // triangle.amb = cgmath::vec3(1.0, 1.0, 1.0);
+        // triangle.diff = cgmath::vec3(0.0, 0.0, 0.0);
+        // triangle.spec = cgmath::vec3(0.0, 0.0, 0.0);
 
         // texture
         let texture = Texture::new("./src/images/shadertoy_abstract1.jpg");
 
-        square.dif_tex = Option::from(texture.clone());
-        square.amb_tex = Option::from(texture.clone());
+        square.dif_tex = Some(texture.clone());
+        square.amb_tex = Some(texture.clone());
 
         let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
 
         // objects.push(sphere3);
         // objects.push(sphere2);
         // objects.push(sphere1);
-        objects.push(Box::new(sphere1));
+        // objects.push(Box::new(sphere1));
         // objects.push(Box::new(triangle1));
         // objects.push(Box::new(triangle2));
         objects.push(Box::new(square));
@@ -128,8 +134,8 @@ impl Raytracer {
                 closest_hit.d = hit.d;
                 closest_hit.normal = hit.normal;
                 closest_hit.point = hit.point;
-                closest_hit.w = hit.w;
-                closest_hit.object = Some(l.as_object());
+                closest_hit.uv = hit.uv;
+                closest_hit.object = Some(l.as_ref());
             }
         }
 
@@ -142,7 +148,9 @@ impl Raytracer {
         let mut color = cgmath::vec3(0.0, 0.0, 0.0);
 
         if hit.d >= 0.0 {
-            if let Some(ref object) = hit.object {
+            if let Some(object) = hit.object {
+
+
                 // color = self.get_ambient_color(object);
 
                 // shadow 기능 비활성화
@@ -181,24 +189,56 @@ impl Raytracer {
                 //     _ => {}
                 // }
 
-                let point_color: cgmath::Vector3<f32>;
-                let diff_color: cgmath::Vector3<f32>;
+                // 각 object 해당하는 프로퍼티 반환
+                let light_properties = object.get_light_color_properties();
+                let amb = light_properties.amb;
+                let diff = light_properties.diff;
+                let spec = light_properties.spec;
+                let alpha = light_properties.alpha;
 
-                match object {
-                    // Object::Sphere(s) => {
-                    //     point_color = s.amb;
-                    //     diff_color =
-                    // },
-                    Object::Square(s) => {
-                        if s.amb_tex.is_some() {
-                            // 여기부터 다시 시작
-                            point_color = s.as_ref().amb_tex.unwrap().get_sample_point();
-                        } else {
-                            point_color = s.amb;
-                        }
-                    }
-                    _ => {}
+                // diffuse
+                let l = (self.light.pos - hit.point).normalize();
+                let n = hit.normal.normalize();
+
+                let diffuse = cgmath::dot(n, l).max(0.0) * diff;
+
+                // specular
+                let r = l - n * 2.0 * cgmath::dot(n, l);
+                let e = (-1.0 * ray.dir).normalize();
+
+                let specular = spec * cgmath::dot(r, e).max(0.0).powf(alpha);
+
+                // texture calculation
+                let texture = object.get_texture();
+                if texture.is_some() {
+
+                    color = texture.as_ref().expect("fail to access the texture").get_sample_point(&hit.uv);
+                } else {
+                    color = amb + diffuse + specular;
                 }
+                //
+
+                // color = amb + diffuse + specular;
+
+                // match object {
+                //     Object::Square(s) => {
+                //         if s.amb_tex.is_some() {
+                //             // 여기부터 다시 시작
+                //
+                //             // point_color = s.amb_tex.as_ref().unwrap().get_sample_point();
+                //
+                //             color = cgmath::vec3(1.0, 0.0, 0.0);
+                //         } else {
+                //
+                //             // point_color = s.amb;
+                //         }
+                //
+                //         color = amb;
+                //     }
+                //     _ => {
+                //         color = amb + diffuse + specular;
+                //     }
+                // }
                 // if object
             }
         }
@@ -297,24 +337,44 @@ impl Raytracer {
         color
     }
 
-    fn get_ambient_color(&self, object: &Object) -> cgmath::Vector3<f32> {
-        let mut color = cgmath::vec3(0.0, 0.0, 0.0);
+    // fn get_ambient_color(&self, object: &dyn Hittable) -> cgmath::Vector3<f32> {
+    //     let mut color = cgmath::vec3(0.0, 0.0, 0.0);
+    //
+    //     object.
+    //
+    //     match object {
+    //         Object::Sphere(s) => {
+    //             color = s.amb;
+    //         }
+    //         Object::Triangle(t) => {
+    //             color = t.amb;
+    //         }
+    //         Object::Square(s) => {
+    //             color = s.amb;
+    //         }
+    //         _ => {}
+    //     }
+    //
+    //     color
+    // }
 
-        match object {
-            Object::Sphere(s) => {
-                color = s.amb;
-            }
-            Object::Triangle(t) => {
-                color = t.amb;
-            }
-            Object::Square(s) => {
-                color = s.amb;
-            }
-            _ => {}
-        }
-
-        color
-    }
+    // fn get_specular_color(&self, object: &dyn Hittable) -> (cgmath::Vector3<f32>, f32, f32) {
+    //     match object {
+    //         Object::Sphere(s) => (s.spec, s.ks, s.alpha),
+    //         Object::Triangle(t) => (t.spec, t.ks, t.alpha),
+    //         Object::Square(s) => (s.spec, s.ks, s.alpha),
+    //         _ => (cgmath::Vector3::new(0.0, 0.0, 0.0), 0.0, 0.0)
+    //     }
+    // }
+    //
+    // fn get_diffuse_color(&self, object: &dyn Hittable) -> cgmath::Vector3<f32> {
+    //     match object {
+    //         Object::Sphere(s) => s.diff,
+    //         Object::Triangle(t) => t.diff,
+    //         Object::Square(s) => s.diff,
+    //         _ => cgmath::Vector3::new(0.0, 0.0, 0.0),
+    //     }
+    // }
 }
 
 // #[test]

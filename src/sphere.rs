@@ -1,6 +1,7 @@
 use cgmath::InnerSpace;
 use crate::ray::Ray;
-use crate::hit::{Hit, Hittable, Object};
+use crate::hit::{Hit, Hittable, LightProperty, Object, TextureProperty};
+use crate::texture::Texture;
 
 pub struct Sphere {
     // geometry properties
@@ -58,22 +59,21 @@ impl Hittable for Sphere {
         hit
     }
 
-    fn as_object(&self) -> Object {
-        let mut sphere = Sphere::new(self.center, self.radius);
-        sphere.amb = self.amb;
-        sphere.diff = self.diff;
-        sphere.spec = self.spec;
-        sphere.ks = self.ks;
-        sphere.alpha = self.alpha;
-
-        Object::Sphere(sphere)
+    fn get_light_color_properties(&self) -> LightProperty {
+        LightProperty {
+            amb: self.amb,
+            diff: self.diff,
+            spec: self.spec,
+            ks: self.ks,
+            alpha: self.alpha
+        }
     }
 
-    fn has_ambient_texture(&self) -> bool {
-        false
+    fn get_texture_properties(&self) -> Option<Texture> {
+        None
     }
 
-    fn has_diffuse_texture(&self) -> bool {
-        false
+    fn get_texture(&self) -> &Option<Texture> {
+        &None
     }
 }
