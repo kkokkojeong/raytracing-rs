@@ -24,6 +24,8 @@ async fn run() {
     width /= 8;
     height /= 8;
 
+    println!("width: {}, height: {}", width, height);
+
     // image buffer
     let mut img_buff = image::RgbImage::new(width as u32, height as u32);
 
