@@ -10,8 +10,8 @@ use winit::{
 use winit::event::ElementState;
 
 async fn run() {
-    let width = 800;
-    let height = 600;
+    let mut width = 800;
+    let mut height = 600;
 
     let event_loop = EventLoop::new().unwrap();
     let window_builder = WindowBuilder::new()
@@ -19,6 +19,10 @@ async fn run() {
         .with_inner_size(winit::dpi::LogicalSize::new(width, height));
     let window = window_builder.build(&event_loop).unwrap();
 
+
+    // super-sampling test codes
+    width /= 8;
+    height /= 8;
 
     // image buffer
     let mut img_buff = image::RgbImage::new(width as u32, height as u32);

@@ -24,7 +24,7 @@ pub struct Raytracer {
 
 impl Raytracer {
     pub fn new(width: i32, height: i32) -> Self {
-        let mut sphere1 = Sphere::new(cgmath::vec3(1.0, 0.0, 1.5), 0.4);
+        let mut sphere1 = Sphere::new(cgmath::vec3(1.0, 0.0, 1.5), 0.8);
         sphere1.amb = cgmath::vec3(0.2, 0.2, 0.2);
         sphere1.diff = cgmath::vec3(1.0, 0.2, 0.2);
         sphere1.spec = cgmath::vec3(0.5, 0.5, 0.5);
@@ -83,9 +83,9 @@ impl Raytracer {
             // cgmath::vec2(0.0, 4.0),
         );
         square.amb = cgmath::vec3(0.2, 0.2, 0.2);
-        square.diff = cgmath::vec3(0.8, 0.8, 0.8);
-        square.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        square.alpha = 50.0;
+        square.diff = cgmath::vec3(1.0, 1.0, 1.0);
+        square.spec = cgmath::vec3(0.0, 0.0, 0.0);
+        // square.alpha = 50.0;
 
         //
         // let mut triangle = Triangle::new(
@@ -100,8 +100,8 @@ impl Raytracer {
         // texture
         let texture = Texture::new("./src/images/shadertoy_abstract1.jpg");
 
-        square.dif_tex = Some(texture.clone());
-        square.amb_tex = Some(texture.clone());
+        // square.dif_tex = Some(texture.clone());
+        // square.amb_tex = Some(texture.clone());
 
         let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
 
@@ -241,12 +241,46 @@ impl Raytracer {
         color
     }
 
+    fn trace_ray_2x2(&self, eye_pos: &cgmath::Vector3<f32>, pixel_pos: &cgmath::Vector3<f32>, dx: f32, level: i32) -> cgmath::Vector3<f32> {
+        if level == 0 {
+            let ray = Ray { dir: (pixel_pos - eye_pos).normalize(), start: *pixel_pos };
+            self.tracy_ray(&ray)
+        } else {
+
+            let sub_dx = 0.5 * dx;
+
+            let mut pixel_color: cgmath::Vector3<f32> = cgmath::vec3(0.0, 0.0, 0.0);
+
+            cgmath::vec3(
+                pixel_pos.x - sub_dx * 0.5,
+                pixel_pos.y - sub_dx * 0.5,
+                pixel_pos.z
+            );
+
+            for j in 0..2 {
+                for i in 0..2 {
+                    let sub_pos = cgmath::vec3(
+                        pixel_pos.x + (i as f32) * sub_dx,
+                        pixel_pos.y + (j as f32) * sub_dx,
+                        pixel_pos.z
+                    );
+                    let color = self.trace_ray_2x2(eye_pos, &sub_pos, sub_dx, level - 1);
+                    pixel_color += color;
+                }
+            }
+
+            pixel_color.mul(0.25)
+        }
+    }
+
     pub fn render(&self, imgbuf: &mut ImageBuffer<image::Rgb<u8>, Vec<u8>>) {
         println!("start of render!");
 
         let start = Instant::now();
 
         let eye_pos = cgmath::Vector3::new(0.0, 0.0, -1.5);
+
+        let dx = 2.0 / self.height as f32;
 
         for j in 0..self.height {
             for i in 0..self.width {
@@ -259,8 +293,12 @@ impl Raytracer {
 
                 // cgmath::vec3(0.0, 0.0, 1.0);
 
-                let pixel_ray = Ray { dir: ray_dir, start: pixel_pos_world };
-                let color = self.tracy_ray(&pixel_ray);
+                // general
+                // let pixel_ray = Ray { dir: ray_dir, start: pixel_pos_world };
+                // let color = self.tracy_ray(&pixel_ray);
+
+                // super-sampling
+                let color = self.trace_ray_2x2(&eye_pos, &pixel_pos_world, dx, 3);
 
                 let r = (color.x * 255.0).clamp(0.0, 255.0) as u8;
                 let g = (color.y * 255.0).clamp(0.0, 255.0) as u8;
