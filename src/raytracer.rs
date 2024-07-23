@@ -1,4 +1,4 @@
-use std::ops::{Mul, Sub};
+use std::ops::{Add, Mul, Sub};
 use std::time::Instant;
 use cgmath::{ElementWise, InnerSpace};
 use image::{EncodableLayout, ImageBuffer};
@@ -250,8 +250,7 @@ impl Raytracer {
             let sub_dx = 0.5 * dx;
 
             let mut pixel_color: cgmath::Vector3<f32> = cgmath::vec3(0.0, 0.0, 0.0);
-
-            cgmath::vec3(
+            let mut pos = cgmath::vec3(
                 pixel_pos.x - sub_dx * 0.5,
                 pixel_pos.y - sub_dx * 0.5,
                 pixel_pos.z
@@ -260,9 +259,9 @@ impl Raytracer {
             for j in 0..2 {
                 for i in 0..2 {
                     let sub_pos = cgmath::vec3(
-                        pixel_pos.x + (i as f32) * sub_dx,
-                        pixel_pos.y + (j as f32) * sub_dx,
-                        pixel_pos.z
+                        pos.x + (i as f32) * sub_dx,
+                        pos.y + (j as f32) * sub_dx,
+                        pos.z
                     );
                     let color = self.trace_ray_2x2(eye_pos, &sub_pos, sub_dx, level - 1);
                     pixel_color += color;
