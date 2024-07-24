@@ -42,3 +42,5 @@ cargo run --package raytracing-rs --bin raytracing-rs
 ### Texturing
 ![Texturing](./output/texturing.png)
 
+### Reflection
+![Reflection](./output/reflection.png)
