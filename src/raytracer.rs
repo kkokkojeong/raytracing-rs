@@ -64,7 +64,7 @@ impl Raytracer {
         square.diff = cgmath::vec3(1.0, 1.0, 1.0);
         square.spec = cgmath::vec3(1.0, 1.0, 1.0);
         square.alpha = 10.0;
-        square.  = 0.0;
+        square.reflection = 0.0;
 
         //
         // let mut triangle = Triangle::new(
