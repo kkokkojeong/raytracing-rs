@@ -14,6 +14,9 @@ pub struct Sphere {
     pub spec: cgmath::Vector3<f32>, // specular
     pub ks: f32,
     pub alpha: f32,
+
+    pub reflection: f32, // 0 ~ 1
+    pub transparency: f32, // 0 ~ 1
 }
 
 impl Sphere {
@@ -25,7 +28,9 @@ impl Sphere {
             diff: cgmath::Vector3::new(0.0, 0.0, 0.0),
             spec: cgmath::Vector3::new(0.0, 0.0, 0.0),
             ks: 0.0,
-            alpha: 0.0
+            alpha: 1.0,
+            reflection: 0.0,
+            transparency: 0.0,
         }
     }
 }
@@ -75,5 +80,13 @@ impl Hittable for Sphere {
 
     fn get_diffuse_texture(&self) -> &Option<Texture> {
         &None
+    }
+
+    fn get_reflection(&self) -> f32 {
+        self.reflection
+    }
+
+    fn get_transparency(&self) -> f32 {
+        self.transparency
     }
 }

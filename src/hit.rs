@@ -55,4 +55,6 @@ pub trait Hittable {
     fn get_light_color_properties(&self) -> LightProperty;
     fn get_ambient_texture(&self) -> &Option<Texture>;
     fn get_diffuse_texture(&self) -> &Option<Texture>;
+    fn get_reflection(&self) -> f32;
+    fn get_transparency(&self) -> f32;
 }

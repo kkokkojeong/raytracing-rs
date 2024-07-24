@@ -10,8 +10,8 @@ use winit::{
 use winit::event::ElementState;
 
 async fn run() {
-    let mut width = 800;
-    let mut height = 600;
+    let width = 800;
+    let height = 600;
 
     let event_loop = EventLoop::new().unwrap();
     let window_builder = WindowBuilder::new()
@@ -21,8 +21,8 @@ async fn run() {
 
 
     // super-sampling test codes
-    width /= 8;
-    height /= 8;
+    // width /= 8;
+    // height /= 8;
 
     println!("width: {}, height: {}", width, height);
 

@@ -12,6 +12,8 @@ use crate::square::Square;
 use crate::texture::Texture;
 use crate::triangle::Triangle;
 
+const RECURSIVE_LEVEL: i32 = 5;
+
 pub struct Raytracer {
     pub width: i32,
     pub height: i32,
@@ -24,54 +26,30 @@ pub struct Raytracer {
 
 impl Raytracer {
     pub fn new(width: i32, height: i32) -> Self {
-        let mut sphere1 = Sphere::new(cgmath::vec3(1.0, 0.0, 1.5), 0.8);
-        sphere1.amb = cgmath::vec3(0.2, 0.2, 0.2);
-        sphere1.diff = cgmath::vec3(1.0, 0.2, 0.2);
-        sphere1.spec = cgmath::vec3(0.5, 0.5, 0.5);
+        let mut sphere1 = Sphere::new(cgmath::vec3(0.0, -0.1, 1.5), 1.0);
+        sphere1.amb = cgmath::vec3(0.1, 0.1, 0.1);
+        sphere1.diff = cgmath::vec3(1.0, 0.0, 0.0);
+        sphere1.spec = cgmath::vec3(1.0, 1.0, 1.0);
         sphere1.alpha = 10.0;
         // sphere1.ks = 0.8;
 
-        // let mut sphere2 = Sphere::new(cgmath::vec3(0.0, 0.0, 1.0), 0.5);
-        // sphere2.amb = cgmath::vec3(0.2, 0.2, 0.2);
-        // sphere2.diff = cgmath::vec3(0.2, 1.0, 0.2);
-        // sphere2.spec = cgmath::vec3(0.5, 0.5, 0.5);
-        // sphere2.alpha = 10.0;
-        // sphere2.ks = 0.8;
+        sphere1.reflection = 0.5;
 
-        // let mut sphere3 = Sphere::new(cgmath::vec3(-0.5, 0.0, 1.5), 0.5);
-        // sphere3.amb = cgmath::vec3(0.2, 0.2, 0.2);
-        // sphere3.diff = cgmath::vec3(0.2, 0.2, 1.0);
-        // sphere3.spec = cgmath::vec3(0.5, 0.5, 0.5);
-        // sphere3.alpha = 10.0;
-        // sphere3.ks = 0.8;
+        let mut sphere2 = Sphere::new(cgmath::vec3(1.2, -0.1, 0.5), 0.4);
+        sphere2.amb = cgmath::vec3(0.0, 0.0, 0.0);
+        sphere2.diff = cgmath::vec3(0.0, 0.0, 1.0);
+        sphere2.spec = cgmath::vec3(1.0, 1.0, 1.0);
+        sphere2.alpha = 50.0;
+        // sphere1.ks = 0.8;
 
-        // triangle 2개로 rectangle 생성
-        // let mut triangle1 = Triangle::new(
-        //     cgmath::vec3(-2.0, -1.0, 0.0),
-        //     cgmath::vec3(-2.0, -1.0, 4.0),
-        //     cgmath::vec3(2.0, -1.0, 4.0),
-        // );
-        // triangle1.amb = cgmath::vec3(0.2, 0.2, 0.2);
-        // triangle1.diff = cgmath::vec3(0.8, 0.8, 0.8);
-        // triangle1.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        // triangle1.alpha = 50.0;
-        //
-        // let mut triangle2 = Triangle::new(
-        //     cgmath::vec3(-2.0, -1.0, 0.0),
-        //     cgmath::vec3(2.0, -1.0, 4.0),
-        //     cgmath::vec3(2.0, -1.0, 0.0),
-        // );
-        // triangle2.amb = cgmath::vec3(0.2, 0.2, 0.2);
-        // triangle2.diff = cgmath::vec3(0.8, 0.8, 0.8);
-        // triangle2.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        // triangle2.alpha = 50.0;
+        sphere2.reflection = 0.5;
 
         let mut square = Square::new(
             // vertices
-            cgmath::vec3(-2.0, 2.0, 2.0),
-            cgmath::vec3(2.0, 2.0, 2.0),
-            cgmath::vec3(2.0, -2.0, 2.0),
-            cgmath::vec3(-2.0, -2.0, 2.0),
+            cgmath::vec3(-10.0, -1.2, 0.0),
+            cgmath::vec3(-10.0, -1.2, 10.0),
+            cgmath::vec3(10.0, -1.2, 10.0),
+            cgmath::vec3(10.0, -1.2, 0.0),
             // uv
             cgmath::vec2(0.0, 0.0),
             cgmath::vec2(1.0, 0.0),
@@ -82,10 +60,11 @@ impl Raytracer {
             // cgmath::vec2(4.0, 4.0),
             // cgmath::vec2(0.0, 4.0),
         );
-        square.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        square.amb = cgmath::vec3(1.0, 1.0, 1.0);
         square.diff = cgmath::vec3(1.0, 1.0, 1.0);
-        square.spec = cgmath::vec3(0.0, 0.0, 0.0);
-        // square.alpha = 50.0;
+        square.spec = cgmath::vec3(1.0, 1.0, 1.0);
+        square.alpha = 10.0;
+        square.  = 0.0;
 
         //
         // let mut triangle = Triangle::new(
@@ -100,8 +79,8 @@ impl Raytracer {
         // texture
         let texture = Texture::new("./src/images/shadertoy_abstract1.jpg");
 
-        // square.dif_tex = Some(texture.clone());
-        // square.amb_tex = Some(texture.clone());
+        square.dif_tex = Some(texture.clone());
+        square.amb_tex = Some(texture.clone());
 
         let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
 
@@ -112,11 +91,12 @@ impl Raytracer {
         // objects.push(Box::new(triangle2));
         objects.push(Box::new(square));
         objects.push(Box::new(sphere1));
+        objects.push(Box::new(sphere2));
 
         // objects.push(Box::new(triangle));
 
         // located back of screen
-        let light = Light { pos: cgmath::vec3(0.0, 1.0, 0.5) };
+        let light = Light { pos: cgmath::vec3(0.0, 0.5, -0.5) };
 
         Raytracer { width, height, light, objects }
     }
@@ -146,53 +126,18 @@ impl Raytracer {
         closest_hit
     }
 
-    pub fn tracy_ray(&self, ray: &Ray) -> cgmath::Vector3<f32> {
-        let hit = self.find_closest_collision(ray);
-
+    pub fn tracy_ray(&self, ray: &Ray, level: i32) -> cgmath::Vector3<f32> {
         let mut color = cgmath::vec3(0.0, 0.0, 0.0);
+        let mut phong_color = cgmath::vec3(0.0, 0.0, 0.0);
+
+        if level < 0 {
+            return color;
+        }
+
+        let hit = self.find_closest_collision(ray);
 
         if hit.d >= 0.0 {
             if let Some(object) = hit.object {
-
-
-                // color = self.get_ambient_color(object);
-
-                // shadow 기능 비활성화
-                // let dir_light = (self.light.pos - hit.point).normalize();
-                //
-                // let shadow_ray = Ray { start: hit.point + (dir_light * 1e-4f32), dir: dir_light };
-                //
-                // let shadow_hit = self.find_closest_collision(&shadow_ray);
-                //
-                // // 라이트가 그림자를 드리울 물체보다 가까이 있는 경우에도 (라이트가 가려지지 않는 경우에도) 그림자를 그리게 됩니다.
-                // // 아래처럼 코드를 수정해주시면 조금 더 물리적으로 정확한 그림자를 표시할 수 있을 것 같습니다.
-                // // FindClosestCollision(shadowRay).d > glm::length(light.pos - hit.point)
-                // let light_hit = self.light.pos - hit.point;
-                //
-                // // 충돌이 없을 경우, shadow ray 가 빛을 향한다는 의미이기 때문에 기존처럼 color 계산
-                // if shadow_hit.d < 0.0 || shadow_hit.d > light_hit.magnitude() {
-                //     color = self.calculate_phong_model_color(&hit, &ray, &object);
-                // }
-
-                // Barycentric Coordinates 테스트 코드
-                // match object {
-                //     Object::Triangle(s) => {
-                //         // interpolation
-                //         let color0 = cgmath::vec3(1.0 ,0.0 ,0.0);
-                //         let color1 = cgmath::vec3(0.0 ,1.0 ,0.0);
-                //         let color2 = cgmath::vec3(0.0 ,0.0 ,1.0);
-                //
-                //         let w0 = hit.w.x;
-                //         let w1 = hit.w.y;
-                //         let w2 = 1.0 - w0 - w1;
-                //
-                //         // println!("{:} {:} {:}", w0, w1, w2);
-                //
-                //         color = color0 * w0 + color1 * w1 + color2 * w2;
-                //     }
-                //     _ => {}
-                // }
-
                 // 각 object 해당하는 프로퍼티 반환
                 let light_properties = object.get_light_color_properties();
                 let amb = light_properties.amb;
@@ -212,29 +157,42 @@ impl Raytracer {
 
                 let specular = spec * cgmath::dot(r, e).max(0.0).powf(alpha);
 
-
                 let amb_texture = object.get_ambient_texture();
                 let dif_texture = object.get_diffuse_texture();
 
+                let reflection = object.get_reflection();
+                let transparency = object.get_transparency();
+
                 // texture calculation - ambient
                 if amb_texture.is_some() {
-                    color = amb.mul_element_wise(
+                    phong_color += amb.mul_element_wise(
                         amb_texture.as_ref().expect("fail to access the texture").get_sample_linear(&hit.uv)
                     );
                 } else {
-                    color = amb;
+                    phong_color += amb;
                 }
 
                 // texture calculation - diffuse
                 if dif_texture.is_some() {
-                    color += diffuse.mul_element_wise(
+                    phong_color += diffuse.mul_element_wise(
                         dif_texture.as_ref().expect("fail to access the texture").get_sample_linear(&hit.uv)
                     );
+
                 } else {
-                    color += diffuse;
+                    phong_color += diffuse;
                 }
 
-                color += specular;
+                phong_color += specular;
+
+                color += phong_color * (1.0 - reflection - transparency);
+
+                if reflection > 0.0 {
+                    let m = -1.0 * hit.normal.dot(ray.dir) * hit.normal + ray.dir;
+                    let reflected_dir = ((2.0 * m) - ray.dir).normalize();
+
+                    let reflected_ray = Ray { start: hit.point + (reflected_dir * 1e-4f32), dir: reflected_dir };
+                    color += self.tracy_ray(&reflected_ray, level - 1);
+                }
             }
         }
 
@@ -244,7 +202,7 @@ impl Raytracer {
     fn trace_ray_2x2(&self, eye_pos: &cgmath::Vector3<f32>, pixel_pos: &cgmath::Vector3<f32>, dx: f32, level: i32) -> cgmath::Vector3<f32> {
         if level == 0 {
             let ray = Ray { dir: (pixel_pos - eye_pos).normalize(), start: *pixel_pos };
-            self.tracy_ray(&ray)
+            self.tracy_ray(&ray, 0)
         } else {
 
             let sub_dx = 0.5 * dx;
@@ -293,11 +251,11 @@ impl Raytracer {
                 // cgmath::vec3(0.0, 0.0, 1.0);
 
                 // general
-                // let pixel_ray = Ray { dir: ray_dir, start: pixel_pos_world };
-                // let color = self.tracy_ray(&pixel_ray);
+                let pixel_ray = Ray { dir: ray_dir, start: pixel_pos_world };
+                let color = self.tracy_ray(&pixel_ray, RECURSIVE_LEVEL);
 
                 // super-sampling
-                let color = self.trace_ray_2x2(&eye_pos, &pixel_pos_world, dx, 3);
+                // let color = self.trace_ray_2x2(&eye_pos, &pixel_pos_world, dx, 3);
 
                 let r = (color.x * 255.0).clamp(0.0, 255.0) as u8;
                 let g = (color.y * 255.0).clamp(0.0, 255.0) as u8;

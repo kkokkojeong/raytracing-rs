@@ -17,6 +17,9 @@ pub struct Square {
 
     pub amb_tex: Option<Texture>,
     pub dif_tex: Option<Texture>,
+
+    pub reflection: f32, // 0 ~ 1
+    pub transparency: f32, // 0 ~ 1
 }
 
 impl Square {
@@ -31,9 +34,11 @@ impl Square {
             diff: cgmath::Vector3::new(0.0, 0.0, 0.0),
             spec: cgmath::Vector3::new(0.0, 0.0, 0.0),
             ks: 0.0,
-            alpha: 0.0,
+            alpha: 1.0,
             amb_tex: None,
             dif_tex: None,
+            reflection: 0.0,
+            transparency: 0.0,
         }
     }
 }
@@ -72,5 +77,13 @@ impl Hittable for Square {
 
     fn get_diffuse_texture(&self) -> &Option<Texture> {
         &self.dif_tex
+    }
+
+    fn get_reflection(&self) -> f32 {
+        self.reflection
+    }
+
+    fn get_transparency(&self) -> f32 {
+        self.transparency
     }
 }
