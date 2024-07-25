@@ -26,77 +26,69 @@ pub struct Raytracer {
 
 impl Raytracer {
     pub fn new(width: i32, height: i32) -> Self {
+        // texture
+        let texture1 = Texture::new("./src/images/shadertoy_abstract1.jpg");
+        let texture2 = Texture::new("./src/images/back.jpg");
+
         let mut sphere1 = Sphere::new(cgmath::vec3(0.0, -0.1, 1.5), 1.0);
-        sphere1.amb = cgmath::vec3(0.1, 0.1, 0.1);
-        sphere1.diff = cgmath::vec3(1.0, 0.0, 0.0);
-        sphere1.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        sphere1.alpha = 10.0;
+        sphere1.amb = cgmath::vec3(0.2, 0.2, 0.2);
+        sphere1.diff = cgmath::vec3(0.0, 0.0, 1.0);
+        sphere1.spec = cgmath::vec3(0.0, 0.0, 0.0);
+        sphere1.alpha = 50.0;
         // sphere1.ks = 0.8;
+        sphere1.reflection = 0.0;
+        sphere1.transparency = 1.0;
 
-        sphere1.reflection = 0.5;
-
-        let mut sphere2 = Sphere::new(cgmath::vec3(1.2, -0.1, 0.5), 0.4);
-        sphere2.amb = cgmath::vec3(0.0, 0.0, 0.0);
-        sphere2.diff = cgmath::vec3(0.0, 0.0, 1.0);
-        sphere2.spec = cgmath::vec3(1.0, 1.0, 1.0);
-        sphere2.alpha = 50.0;
-        // sphere1.ks = 0.8;
-
-        sphere2.reflection = 0.5;
-
-        let mut square = Square::new(
+        let mut ground = Square::new(
             // vertices
-            cgmath::vec3(-10.0, -1.2, 0.0),
-            cgmath::vec3(-10.0, -1.2, 10.0),
-            cgmath::vec3(10.0, -1.2, 10.0),
-            cgmath::vec3(10.0, -1.2, 0.0),
+            cgmath::vec3(-10.0, -1.5, 0.0),
+            cgmath::vec3(-10.0, -1.5, 10.0),
+            cgmath::vec3(10.0, -1.5, 10.0),
+            cgmath::vec3(10.0, -1.5, 0.0),
             // uv
             cgmath::vec2(0.0, 0.0),
             cgmath::vec2(1.0, 0.0),
             cgmath::vec2(1.0, 1.0),
             cgmath::vec2(0.0, 1.0),
-            // cgmath::vec2(0.0, 0.0),
-            // cgmath::vec2(4.0, 0.0),
-            // cgmath::vec2(4.0, 4.0),
-            // cgmath::vec2(0.0, 4.0),
+        );
+        ground.amb = cgmath::vec3(1.0, 1.0, 1.0);
+        ground.diff = cgmath::vec3(1.0, 1.0, 1.0);
+        ground.spec = cgmath::vec3(1.0, 1.0, 1.0);
+        ground.alpha = 10.0;
+        ground.reflection = 0.0;
+
+        ground.amb_tex = Some(texture1.clone());
+        ground.dif_tex = Some(texture1.clone());
+
+        let mut square = Square::new(
+            // vertices
+            cgmath::vec3(-10.0, 10.0, 10.0),
+            cgmath::vec3(10.0, 10.0, 10.0),
+            cgmath::vec3(10.0, -10.0, 10.0),
+            cgmath::vec3(-10.0, -10.0, 10.0),
+            // uv
+            cgmath::vec2(0.0, 0.0),
+            cgmath::vec2(1.0, 0.0),
+            cgmath::vec2(1.0, 1.0),
+            cgmath::vec2(0.0, 1.0),
         );
         square.amb = cgmath::vec3(1.0, 1.0, 1.0);
-        square.diff = cgmath::vec3(1.0, 1.0, 1.0);
-        square.spec = cgmath::vec3(1.0, 1.0, 1.0);
+        square.diff = cgmath::vec3(0.0, 0.0, 0.0);
+        square.spec = cgmath::vec3(0.0, 0.0, 0.0);
         square.alpha = 10.0;
         square.reflection = 0.0;
 
-        //
-        // let mut triangle = Triangle::new(
-        //     cgmath::vec3(-2.0, -2.0, 2.0),
-        //     cgmath::vec3(-2.0, 2.0, 2.0),
-        //     cgmath::vec3(2.0, 2.0, 2.0),
-        // );
-        // triangle.amb = cgmath::vec3(1.0, 1.0, 1.0);
-        // triangle.diff = cgmath::vec3(0.0, 0.0, 0.0);
-        // triangle.spec = cgmath::vec3(0.0, 0.0, 0.0);
-
-        // texture
-        let texture = Texture::new("./src/images/shadertoy_abstract1.jpg");
-
-        square.dif_tex = Some(texture.clone());
-        square.amb_tex = Some(texture.clone());
+        square.amb_tex = Some(texture2.clone());
+        square.dif_tex = Some(texture2.clone());
 
         let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
 
-        // objects.push(sphere3);
-        // objects.push(sphere2);
-        // objects.push(sphere1);
-        // objects.push(Box::new(triangle1));
-        // objects.push(Box::new(triangle2));
+        objects.push(Box::new(ground));
         objects.push(Box::new(square));
         objects.push(Box::new(sphere1));
-        objects.push(Box::new(sphere2));
-
-        // objects.push(Box::new(triangle));
 
         // located back of screen
-        let light = Light { pos: cgmath::vec3(0.0, 0.5, -0.5) };
+        let light = Light { pos: cgmath::vec3(0.0, 0.3, -0.5) };
 
         Raytracer { width, height, light, objects }
     }
@@ -130,7 +122,10 @@ impl Raytracer {
         let mut color = cgmath::vec3(0.0, 0.0, 0.0);
         let mut phong_color = cgmath::vec3(0.0, 0.0, 0.0);
 
+
+
         if level < 0 {
+            println!("level {}", level);
             return color;
         }
 
@@ -177,7 +172,6 @@ impl Raytracer {
                     phong_color += diffuse.mul_element_wise(
                         dif_texture.as_ref().expect("fail to access the texture").get_sample_linear(&hit.uv)
                     );
-
                 } else {
                     phong_color += diffuse;
                 }
@@ -193,6 +187,41 @@ impl Raytracer {
                     let reflected_ray = Ray { start: hit.point + (reflected_dir * 1e-4f32), dir: reflected_dir };
                     color += self.tracy_ray(&reflected_ray, level - 1);
                 }
+
+                // 참고
+                // https://samdriver.xyz/article/refraction-sphere (그림들이 좋아요)
+                // https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel (오류있음)
+                // https://web.cse.ohio-state.edu/~shen.94/681/Site/Slides_files/reflection_refraction.pdf (슬라이드가 보기 좋지는 않지만 정확해요)
+                if transparency > 0.0 {
+                    const INDEX_OF_REFRACTION: f32 = 1.5;
+
+                    let mut eta: f32;
+                    let mut normal: cgmath::Vector3<f32>;
+
+                    // 밖에서 안에서 들어가는 경우 (예: 공기->유리)
+                    if ray.dir.dot(hit.normal) < 0.0 {
+                        eta = INDEX_OF_REFRACTION;
+                        normal = hit.normal;
+                    }
+                    // 안에서 밖으로 나가는 경우 (예: 유리->공기)
+                    else {
+                        eta = 1.0 / INDEX_OF_REFRACTION;
+                        normal = -1.0 * hit.normal;
+                    }
+
+                    let cos_theta1 = -normal.dot(ray.dir);
+                    let sin_theta1 = (1.0 - cos_theta1 * cos_theta1).sqrt();
+                    let sin_theta2 = sin_theta1 / eta;
+                    let cos_theta2 = (1.0 - sin_theta2 * sin_theta2).sqrt();
+
+                    let m = (normal.dot(-ray.dir) * normal + ray.dir).normalize();
+                    let a = m * sin_theta2;
+                    let b = -normal * cos_theta2;
+                    let refracted_dir = (a + b).normalize();
+
+                    let refracted_ray = Ray { start: hit.point + (refracted_dir * 1e-4f32), dir: refracted_dir };
+                    color += self.tracy_ray(&refracted_ray, level - 1) * transparency;
+                }
             }
         }
 
@@ -204,14 +233,13 @@ impl Raytracer {
             let ray = Ray { dir: (pixel_pos - eye_pos).normalize(), start: *pixel_pos };
             self.tracy_ray(&ray, 0)
         } else {
-
             let sub_dx = 0.5 * dx;
 
             let mut pixel_color: cgmath::Vector3<f32> = cgmath::vec3(0.0, 0.0, 0.0);
             let mut pos = cgmath::vec3(
                 pixel_pos.x - sub_dx * 0.5,
                 pixel_pos.y - sub_dx * 0.5,
-                pixel_pos.z
+                pixel_pos.z,
             );
 
             for j in 0..2 {
@@ -219,7 +247,7 @@ impl Raytracer {
                     let sub_pos = cgmath::vec3(
                         pos.x + (i as f32) * sub_dx,
                         pos.y + (j as f32) * sub_dx,
-                        pos.z
+                        pos.z,
                     );
                     let color = self.trace_ray_2x2(eye_pos, &sub_pos, sub_dx, level - 1);
                     pixel_color += color;

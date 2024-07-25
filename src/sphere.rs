@@ -52,7 +52,13 @@ impl Hittable for Sphere {
             let d1 = (-b - det.sqrt()) / 2.0;
             let d2 = (-b + det.sqrt()) / 2.0;
 
-            let d = d1.min(d2);
+            let mut d = d1.min(d2);
+
+            // 물체 안에서 다시 밖으로 나가면서 충돌 가능
+            if d < 0.0 {
+                d = d1.max(d2);
+            }
+
             let point = ray.start + (ray.dir * d);
             let normal = (point - self.center).normalize();
 
