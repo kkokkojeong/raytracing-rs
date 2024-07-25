@@ -122,10 +122,7 @@ impl Raytracer {
         let mut color = cgmath::vec3(0.0, 0.0, 0.0);
         let mut phong_color = cgmath::vec3(0.0, 0.0, 0.0);
 
-
-
         if level < 0 {
-            println!("level {}", level);
             return color;
         }
 
