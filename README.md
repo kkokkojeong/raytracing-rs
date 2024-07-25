@@ -44,3 +44,6 @@ cargo run --package raytracing-rs --bin raytracing-rs
 
 ### Reflection
 ![Reflection](./output/reflection.png)
+
+### Refraction
+![Refraction](./output/refraction.png)
